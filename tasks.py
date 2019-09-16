@@ -50,33 +50,37 @@ def list_open_tasks():
     # print('id:', todos['id'])
     for id_key, task in todos["tasks"].items():
         if task["status"] == "open":
-            # print("-" * 40)
-            print(crayons.blue(id_key), crayons.green(task["status"]), task["text"])
+            # print(crayons.blue(id_key), crayons.green(task["status"]), task["text"])
+            print(crayons.blue(id_key), task["text"])
+            x = len(id_key)
 
             if len(task["comment"][0]) > 0:
                 for c in task["comment"]:
-                    print(' ' * 6, crayons.blue(c))
+                    print(' ' * (x+1), crayons.blue(c))
 
             if len(task["tags"][0]) > 0:
-                print(' ' * 6, '- ', end='')
+                print(' ' * (x+1), end='')
                 for t in task["tags"]:
-                    print(crayons.yellow(t), '- ', end='')
+                    if t.lower() == "high":
+                        print(crayons.red(t.upper()), '- ', end='')
+                    else:
+                        print(crayons.yellow(t), '- ', end='')
                 print('')
 
 
 def list_finished_tasks():
-    # print('id:', todos['id'])
     for id_key, task in todos["tasks"].items():
         if task["status"] == "finished":
-            # print("-" * 40)
-            print(crayons.blue(id_key), crayons.blue(task["status"]), task["text"])
+            # print(crayons.blue(id_key), crayons.blue(task["status"]), task["text"])
+            print(crayons.blue(id_key), task["text"])
+            x = len(id_key)
 
             if len(task["comment"][0]) > 0:
                 for c in task["comment"]:
-                    print(' ' * 10, crayons.yellow(c))
+                    print(' ' * (x+1), crayons.yellow(c))
 
             if len(task["tags"][0]) > 0:
-                print(' ' * 10, '- ', end='')
+                print(' ' * (x+1), end='')
                 for t in task["tags"]:
                     print(crayons.yellow(t), '- ', end='')
                 print('')
@@ -96,12 +100,16 @@ actions = {
 
 
 def list_actions():
-    length = 23
+    length = 24
     print('-' * length)
     for action, key in actions.items():
-        x = length - len(action) - 12
-        print('|', crayons.yellow(action), ' ' * x, '[', crayons.yellow(key.upper()), ']', ' |')
-    print('-' * length)
+        x = length - len(action) - 6
+        if action == "Reset ALL":
+            x = 2
+            print('|', crayons.yellow(action), ' ' * x, '[', crayons.yellow(key.upper()), ']', ' |', sep='')
+        else:
+            print('|', crayons.yellow(action), ' ' * x, '[', crayons.yellow(key.upper()), ']', ' |', sep='')
+    print('-' * length, '\n')
 
 
 def extract_data(inp: str):
@@ -117,6 +125,8 @@ def extract_data(inp: str):
 
     # TAGS
     tags = inp.split("*")[1:]
+    if not tags:
+        tags = [""]
 
     # input ohne TAGS
     inp = inp.split("*")[0]
@@ -154,11 +164,11 @@ def _main():
         # clear screen
         os.system('cls')
 
-        print("\n", "#" * 10, " FINISHED ", "#" * 60, "\n", sep='')
+        print("\n##", crayons.blue(" FINISHED "), "#" * 70, "\n", sep='')
         list_finished_tasks()
-        print("\n", "#" * 10, " OPEN ", "#" * 64, "\n", sep='')
+        print("\n##", crayons.green(" OPEN "), "#" * 74, "\n", sep='')
         list_open_tasks()
-        print("\n", "#" * 80, "\n", sep='')
+        print("\n", "#" * 82, "\n", sep='')
 
         # list_actions()
         print("EXIT Y")
@@ -176,7 +186,7 @@ def _main():
 
             if action == "n":                                               # New entry
                 task_id = get_id()
-                todos["tasks"][task_id] = {"text": text, "status": "open", "comment": "", "tags": tags}
+                todos["tasks"][task_id] = {"text": text, "status": "open", "comment": [""], "tags": tags}
             elif action == "y":                                             # Cancel program
                 go = False
             elif action == "t":                                             # List all tasks
