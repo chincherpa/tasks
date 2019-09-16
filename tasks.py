@@ -7,7 +7,7 @@ from time import sleep
 
 import crayons
 
-print('new')
+print('new2')
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 js_name = "my_todolist.js"
