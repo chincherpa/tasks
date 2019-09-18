@@ -159,12 +159,16 @@ def extract_data(inp: str):
 def _main():
     go = True
     print('go')
+    bList_all = False
     while go:
         # clear screen
         os.system('cls')
 
-        # print("\n##", crayons.blue(" FINISHED "), "#" * 70, "\n", sep='')
-        # list_finished_tasks()
+        if bList_all:
+            print("\n##", crayons.blue(" FINISHED "), "#" * 70, "\n", sep='')
+            list_finished_tasks()
+            bList_all = False
+
         print("\n##", crayons.green(" OPEN "), "#" * 74, "\n", sep='')
         list_open_tasks()
         print("\n", "#" * 82, "\n", sep='')
@@ -189,8 +193,9 @@ def _main():
             elif action == "y":                                             # Cancel program
                 go = False
             elif action == "t":                                             # List all tasks
-                print("list tasks")
-                sleep(3)
+                # print("list tasks")
+                # sleep(3)
+                bList_all = True
             elif action == "f":                                             # Set status to FINISH
                 todos["tasks"][task_id]["status"] = "finished"
             elif action == "o":                                             # Set status to OPEN
