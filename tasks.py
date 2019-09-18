@@ -158,6 +158,7 @@ def extract_data(inp: str):
 
 def _main():
     go = True
+    print('go')
     while go:
         # clear screen
         os.system('cls')
