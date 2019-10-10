@@ -3,7 +3,7 @@
 import json
 import os
 import re
-# from time import sleep
+from time import sleep
 
 import crayons
 
@@ -57,13 +57,23 @@ def print_comment(id_key, x):
 
 
 def print_tags(id_key, x):
+    id_tags = todos["tasks"][id_key]["tags"]
     print(' ' * (x + 2), end='')
-    for t in todos["tasks"][id_key]["tags"]:
-        if t.lower() == "high":
-            print(crayons.red(t.upper()), '- ', end='')
+    if "high" in id_tags:
+        print(crayons.red("HIGH"), '- ', end='')
+    elif "low" in id_tags:
+        print(crayons.green("low"), '- ', end='')
+    for t in id_tags:
+        if t in ["high", "low"]:
+            continue
         else:
             print(crayons.yellow(t), '- ', end='')
     print('')
+
+
+def print_result(id_key, x):
+    print(' ' * (x + 2), end='')
+    print(crayons.cyan('-> ' + todos["tasks"][id_key]["result"]))
 
 
 def list_open_tasks(tag_to_show):
@@ -99,15 +109,19 @@ def list_finished_tasks():
             if len(task["tags"][0]) > 0:
                 print_tags(id_key, x)
 
+            if len(task["result"]) > 0:
+                print_result(id_key, x)
+
 
 actions = {
     "Add task": "n",
     "Edit task": "e",
-    "Add comment task": "c",
+    "Add comment": "c",
+    "Add tag": "t",
     "Remove task": "r",
     "Finish task": "f",
     "Reopen task": "o",
-    "List task": "t",
+    "List task": "l",
     "List actions": "a",
     "Cancel": "y",
     "Reset ALL": "resetall",
@@ -144,7 +158,7 @@ def extract_data(inp: str):
     if not tags:
         tags = [""]
 
-    # input ohne TAGS
+    # input Tags abschneiden
     inp = inp.split("*")[0]
     # TASK ID
     try:
@@ -205,9 +219,10 @@ def _main():
 
         if action_input:
             # continue if missing parameter ("e4")
-            if len(action_input) == 1 and action_input in ['n', 'f', 'o', 'r', 'e']:
+            if len(action_input) == 1 and action_input in ['n', 'f', 'o', 'r', 'e', 't']:
                 continue
 
+            # *TAG_TO_FILTER "*992" - Default "all"
             if action_input[0] == "*":
                 if len(action_input) > 1:
                     tag = action_input[1:]
@@ -224,7 +239,7 @@ def _main():
 
             if action == "y":                                               # Cancel program
                 go = False
-            elif action == "t":                                             # List all tasks
+            elif action == "l":                                             # List all tasks
                 # print("list tasks")
                 # sleep(3)
                 bList_tasks = not bList_tasks
@@ -232,7 +247,7 @@ def _main():
                 # print("list tasks")
                 # sleep(3)
                 bList_actions = not bList_actions
-            elif action == "c":  # Expand comment
+            elif action == "c":                                             # Add comment
                 if len(todos["tasks"][task_id]["comment"][0]) == 0:
                     todos["tasks"][task_id]["comment"] = [text]
                 else:
@@ -242,6 +257,8 @@ def _main():
                 todos["tasks"][task_id] = {"text": text, "status": "open", "comment": [""], "tags": tags}
             elif action == "f":                                             # Set status to FINISH
                 todos["tasks"][task_id]["status"] = "finished"
+                if text:                                                    # and set Result
+                    todos["tasks"][task_id]["result"] = text
             elif action == "o":                                             # Set status to OPEN
                 # todos["tasks"][task_id]["tags"].insert(0, "reopen")
                 todos["tasks"][task_id]["status"] = "open"
@@ -249,7 +266,13 @@ def _main():
                 todos["tasks"].pop(task_id, None)
             elif action == "e":                                             # Edit existing task
                 todos["tasks"][task_id]["text"] = text
-                todos["tasks"][task_id]["tags"] = tags
+            elif action == "t":                                             # add tags
+                if len(todos["tasks"][task_id]["tags"][0]) == 0:
+                    todos["tasks"][task_id]["tags"] = tags
+                else:
+                    for tag in tags:
+                        todos["tasks"][task_id]["tags"].append(tag)
+                tag = 'all'                                                 # reset variable tag, coz filter
             dump_todo_list_to_json()
 
 
