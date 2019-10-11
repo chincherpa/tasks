@@ -7,8 +7,6 @@ import re
 
 import crayons
 
-print('new2')
-
 dir_path = os.path.dirname(os.path.realpath(__file__))
 js_name = "my_todolist.js"
 path_to_js = os.path.join(dir_path, js_name)
@@ -48,8 +46,10 @@ def list_all_tasks():
 
 def list_open_tasks():
     # print('id:', todos['id'])
+    bno_open_tasks = True
     for id_key, task in todos["tasks"].items():
         if task["status"] == "open":
+            bno_open_tasks = False
             # print(crayons.blue(id_key), crayons.green(task["status"]), task["text"])
             print(crayons.blue(id_key), task["text"])
             x = len(id_key)
@@ -66,6 +66,9 @@ def list_open_tasks():
                     else:
                         print(crayons.yellow(t), '- ', end='')
                 print('')
+
+    if bno_open_tasks:
+        print(crayons.red('No open tasks'))
 
 
 def list_finished_tasks():
