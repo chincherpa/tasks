@@ -40,6 +40,8 @@ def get_id():
     return str(new_id)
 
 
+<<<<<<< HEAD
+=======
 def list_all_tasks():
     print("id:", todos["id"])
     for id_key, task in todos["tasks"].items():
@@ -48,6 +50,7 @@ def list_all_tasks():
         print(crayons.yellow(task["tags"]))
 
 
+>>>>>>> f0fdbd71fb382ff81445bb9a15efa61954e21ca7
 def filter_tag(id_key, tag):
     for t in todos["tasks"][id_key]["tags"]:
         if t.lower() == tag:
