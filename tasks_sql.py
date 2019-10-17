@@ -3,17 +3,52 @@
 import json
 import os
 import re
-# from time import sleep
+import sqlite3
+from time import sleep
 
 import crayons
+
+dir_path_sql = os.path.dirname(os.path.realpath(__file__))
+db_name = 'tasks_db.db'
+path_to_db = os.path.join(dir_path_sql, db_name)
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 js_name = "my_todolist.js"
 path_to_js = os.path.join(dir_path, js_name)
 
 
-# crayons: 'red', 'green', 'yellow', 'blue'
-# crayons: 'black', 'magenta', 'cyan', 'white'
+#crayons: 'red', 'green', 'yellow', 'blue'
+#crayons: 'black', 'magenta', 'cyan', 'white'
+
+
+def create_connection(db_file):
+    """ create a database connection to the SQLite database
+        specified by the db_file
+    :param db_file: database file
+    :return: Connection object or None
+    """
+    try:
+        conn = sqlite3.connect(db_file)
+        return conn
+    except: # Error as e:
+        print(e)
+
+
+if not os.path.isfile(path_to_db):
+    print('not os.path.isfile(path_to_db)')
+    open(db_name, 'a').close()
+
+conn = create_connection(path_to_db)
+c = conn.cursor()
+
+try:
+    c.execute('CREATE TABLE my_tasks(filename, path)')
+except sqlite3.OperationalError as e:
+    print(crayons.yellow('\n[INFO]', bold=True), e)
+    
+def remove_task(id: str):
+    c.execute('DELETE FROM my_tasks WHERE id LIKE ?', (f'%{id}%',))
+
 
 
 def dump_todo_list_to_json():
