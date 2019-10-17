@@ -35,13 +35,13 @@ else:
 
 
 def get_id():
-    new_id = todos["id"] + 1
-    todos["id"] = new_id
+    new_id = todos["ids"] + 1
+    todos["ids"] = new_id
     return str(new_id)
 
 
 def list_all_tasks():
-    print("id:", todos["id"])
+    print("id:", todos["ids"])
     for id_key, task in todos["tasks"].items():
         print("-" * 40)
         print(crayons.blue(id_key), task["status"], task["text"])
