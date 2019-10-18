@@ -1,1 +1,1 @@
-<img src="screenhot.jpg">
+![alt text](https://github.com/chincherpa/tasks/blob/master/screenshot.jpg)
