@@ -1,0 +1,413 @@
+{
+    "ids": 27,
+    "tasks": {
+        "1": {
+            "text": "MASGCompact J1 VR10 fertig auswerten",
+            "status": "finished",
+            "comment": [
+                [
+                    "Auswertung fertig -> Email Johannes",
+                    "2019-10-18"
+                ]
+            ],
+            "tags": [
+                "J1",
+                "MASGCompact",
+                "Spoiler"
+            ],
+            "result": [
+                "abgeschlossen",
+                "2019-10-18"
+            ],
+            "date_added": "2019-10-18"
+        },
+        "2": {
+            "text": "Inbetriebnahme MASGTarga am 992 Spoiler",
+            "status": "open",
+            "comment": [
+                ""
+            ],
+            "tags": [
+                "992",
+                "MASGTarga",
+                "Spoiler"
+            ],
+            "result": "",
+            "date_added": "2019-10-18"
+        },
+        "3": {
+            "text": "Inbetriebnahme MASGTarga am 992 Verdeck",
+            "status": "open",
+            "comment": [
+                [
+                    "Termin am Mittwoch, Schifferle & Pan",
+                    "2019-10-18"
+                ],
+                [
+                    "Termin ist am Donnerstag",
+                    "2019-10-18"
+                ],
+                [
+                    "DSpace Tempsensor verdrahten",
+                    "2019-10-18"
+                ],
+                [
+                    "weiteren Hallsensor f\u00fcr Targa ins Modell, nach Win10 und DSpace-Release",
+                    "2019-10-18"
+                ]
+            ],
+            "tags": [
+                "992",
+                "MASGTarga",
+                "Verdeck"
+            ],
+            "result": "",
+            "date_added": "2019-10-18"
+        },
+        "4": {
+            "text": "EVLS Dauerlauf Abbr\u00fcche - Alan?",
+            "status": "finished",
+            "comment": [
+                [
+                    "Offline-Auswertung schreiben",
+                    "2019-10-18"
+                ]
+            ],
+            "tags": [
+                "EVLS"
+            ],
+            "result": [
+                "keine weiteren gefunden",
+                "2019-10-18"
+            ],
+            "date_added": "2019-10-18"
+        },
+        "5": {
+            "text": "Schalterleiste Cabrio/Targa 992",
+            "status": "open",
+            "comment": [
+                [
+                    "mit Jens/Thorsten kl\u00e4ren",
+                    "2019-10-18"
+                ],
+                [
+                    "Thorsten is Di im Urlaub",
+                    "2019-10-18"
+                ]
+            ],
+            "tags": [
+                "992",
+                "HW"
+            ],
+            "result": "",
+            "date_added": "2019-10-18"
+        },
+        "6": {
+            "text": "LiftSG: ZDC-Kodierung in POST",
+            "status": "finished",
+            "comment": [
+                ""
+            ],
+            "tags": [
+                "992",
+                "Lift",
+                "EXAM"
+            ],
+            "result": "",
+            "date_added": "2019-10-18"
+        },
+        "7": {
+            "text": "Papier bestellen",
+            "status": "finished",
+            "comment": [
+                ""
+            ],
+            "tags": [
+                ""
+            ],
+            "result": "",
+            "date_added": "2019-10-18"
+        },
+        "8": {
+            "text": "Termin Dr. Brauchle",
+            "status": "finished",
+            "comment": [
+                ""
+            ],
+            "tags": [
+                "privat"
+            ],
+            "result": "",
+            "date_added": "2019-10-18"
+        },
+        "9": {
+            "text": "Lift ZDC-\u00c4nderung VR14 ",
+            "status": "open",
+            "comment": [
+                [
+                    "Report steht noch aus",
+                    "2019-10-18"
+                ]
+            ],
+            "tags": [
+                "Lift",
+                "992",
+                "VR14"
+            ],
+            "result": "",
+            "date_added": "2019-10-18"
+        },
+        "10": {
+            "text": "Heckrollo Alan EXAM Tests verbessern ",
+            "status": "open",
+            "comment": [
+                ""
+            ],
+            "tags": [
+                "G2",
+                "Heckrollo",
+                "EXAM"
+            ],
+            "result": "",
+            "date_added": "2019-10-18"
+        },
+        "11": {
+            "text": "Heckrollo Alan Spielschutzcheck in der PRE ",
+            "status": "finished",
+            "comment": [
+                ""
+            ],
+            "tags": [
+                "Alan",
+                "G2",
+                "EXAM"
+            ],
+            "result": [
+                "implementiert, war eh schon XD",
+                "2019-10-18"
+            ],
+            "date_added": "2019-10-18"
+        },
+        "13": {
+            "text": "SCRUM in Gruppe? Vorschlag Pascal ",
+            "status": "open",
+            "comment": [
+                ""
+            ],
+            "tags": [
+                "AG3",
+                "Pascal"
+            ],
+            "result": "",
+            "date_added": "2019-10-18"
+        },
+        "14": {
+            "text": "SAD SAD_Verfahren weitermachen ",
+            "status": "finished",
+            "comment": [
+                ""
+            ],
+            "tags": [
+                "992",
+                "SAD",
+                "EXAM"
+            ],
+            "result": "",
+            "date_added": "2019-10-18"
+        },
+        "15": {
+            "text": "SAD 992 VR14 ",
+            "status": "open",
+            "comment": [
+                ""
+            ],
+            "tags": [
+                "992",
+                "VR",
+                "SAD",
+                "high"
+            ],
+            "result": "",
+            "date_added": "2019-10-18"
+        },
+        "16": {
+            "text": "Alan VW-DOORS ",
+            "status": "open",
+            "comment": [
+                ""
+            ],
+            "tags": [
+                "Alan",
+                "Doors"
+            ],
+            "result": "",
+            "date_added": "2019-10-18"
+        },
+        "17": {
+            "text": "EVLS Ehoch3 Alan HW besorgen lassen, wann SG verf\u00fcgbar ",
+            "status": "open",
+            "comment": [
+                [
+                    "SG ist da",
+                    "2019-10-18"
+                ],
+                [
+                    "LS am Dienstag abholbereit, der Typ ruft an Tel:19402",
+                    "2019-10-18"
+                ]
+            ],
+            "tags": [
+                "Ehoch3",
+                "Alan",
+                "EVLS"
+            ],
+            "result": "",
+            "date_added": "2019-10-18"
+        },
+        "18": {
+            "text": "Ablauf Antr\u00e4ge neue Mitarbeiter ",
+            "status": "open",
+            "comment": [
+                [
+                    "in Excel-Datei eingetragen",
+                    "2019-10-18"
+                ]
+            ],
+            "tags": [
+                "Porsche",
+                "Antr\u00e4ge",
+                "low"
+            ],
+            "result": "",
+            "date_added": "2019-10-18"
+        },
+        "19": {
+            "text": "EVLS-Testpec kopieren lassen",
+            "status": "open",
+            "comment": [
+                [
+                    "Alan ist informiert",
+                    "2019-10-18"
+                ],
+                [
+                    "Hr. Luther wei\u00df Bescheid",
+                    "2019-10-18"
+                ],
+                [
+                    "Alan l\u00e4sst kopieren",
+                    "2019-10-18"
+                ]
+            ],
+            "tags": [
+                "EVLS",
+                "Ehoch3"
+            ],
+            "result": "",
+            "date_added": "2019-10-18"
+        },
+        "20": {
+            "text": "Antr\u00e4ge Lena fertig machen",
+            "status": "open",
+            "comment": [
+                [
+                    "EXAM VW-DOORS TesthausDaten PDMS",
+                    "2019-10-18"
+                ],
+                [
+                    "PSP-Details ausf\u00fcllen lassen",
+                    "2019-10-18"
+                ]
+            ],
+            "tags": [
+                ""
+            ],
+            "result": "",
+            "date_added": "2019-10-18"
+        },
+        "21": {
+            "text": "tasks: NEU Datum eintragen",
+            "status": "finished",
+            "comment": [
+                ""
+            ],
+            "tags": [
+                ""
+            ],
+            "date_added": "2019-10-18",
+            "result": "Ok"
+        },
+        "22": {
+            "text": "Email Katzenklappe ",
+            "status": "open",
+            "comment": [
+                [
+                    "Nachfrage 16.10.",
+                    "2019-10-16"
+                ],
+                [
+                    "schicken neue Klappe",
+                    "2019-10-18"
+                ]
+            ],
+            "tags": [
+                "privat"
+            ],
+            "result": "",
+            "date_added": "2019-10-18"
+        },
+        "23": {
+            "text": "Email Monsieur",
+            "status": "open",
+            "comment": [
+                [
+                    "nachgefragt 16.10.",
+                    "2019-10-16"
+                ]
+            ],
+            "tags": [
+                "privat"
+            ],
+            "result": "",
+            "date_added": "2019-10-18"
+        },
+        "24": {
+            "text": "VR-\u00dcbersicht",
+            "status": "open",
+            "comment": [
+                ""
+            ],
+            "tags": [
+                ""
+            ],
+            "result": "",
+            "date_added": "2019-10-18"
+        },
+        "25": {
+            "text": "Lukas falsche Kostenstelle",
+            "status": "open",
+            "comment": [
+                ""
+            ],
+            "tags": [
+                ""
+            ],
+            "result": "",
+            "date_added": "2019-10-18"
+        },
+        "27": {
+            "text": "Inbetriebnahme MASGVerdeck 992",
+            "status": "open",
+            "comment": [
+                [
+                    "Tempsensor ist direkt verdrahtet und funktioniert",
+                    "2019-10-18"
+                ]
+            ],
+            "tags": [
+                "992",
+                "Verdeck"
+            ],
+            "date_added": "2019-10-18"
+        }
+    }
+}
