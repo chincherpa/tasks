@@ -1,16 +1,17 @@
 #!/usr/bin/env python
 
+import datetime
 import json
 import os
 import re
-# from time import sleep
 
 import crayons
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
-js_name = "my_todolist.js"
+js_name = "my_todolist.json"
 path_to_js = os.path.join(dir_path, js_name)
 
+length_overall = 90
 
 # crayons: 'red', 'green', 'yellow', 'blue'
 # crayons: 'black', 'magenta', 'cyan', 'white'
@@ -41,7 +42,7 @@ def get_id():
 
 
 def list_all_tasks():
-    print("id:", todos["ids"])
+    print("ids:", todos["ids"])
     for id_key, task in todos["tasks"].items():
         print("-" * 40)
         print(crayons.blue(id_key), task["status"], task["text"])
@@ -55,14 +56,16 @@ def filter_tag(id_key, tag):
     return False
 
 
-def print_comment(id_key, x):
+def print_comment(id_key):
     for c in todos["tasks"][id_key]["comment"]:
-        print(' ' * (x + 1), crayons.blue(c))
+        length_comment = len(c[0])
+        length_space = length_overall - (length_comment + 16)
+        print(' ' * 3, crayons.blue(c[0]), ' ' * length_space, crayons.blue(c[1]))
 
 
-def print_tags(id_key, x):
+def print_tags(id_key):
     id_tags = todos["tasks"][id_key]["tags"]
-    print(' ' * (x + 2), end='')
+    print(' ' * 4, end='')
     if "high" in id_tags:
         print(crayons.red("HIGH"), '- ', end='')
     elif "low" in id_tags:
@@ -75,63 +78,64 @@ def print_tags(id_key, x):
     print('')
 
 
-def print_result(id_key, x):
-    print(' ' * (x + 2), end='')
-    print(crayons.cyan('-> ' + todos["tasks"][id_key]["result"]))
+def print_result(id_key):
+    res = todos["tasks"][id_key]["result"]
+    length_result = len(res[0])
+    length_space = length_overall - (length_result + 3 + 10)
+    print(' ' * 3, crayons.blue(res[0]), '.' * length_space, crayons.blue(res[1]))
 
 
-def list_tasks(status: str, tag_to_show: str = 'all'):
+def list_tasks(status: str, tag_to_show: str = 'all', show_comments: bool = True):
     for id_key, task in todos["tasks"].items():
+        title = task["text"].strip()
+        date_added = task["date_added"]
+        length_text = len(title)
+        length_space = length_overall - (length_text + 13)
+        space_after_id = 3 - len(id_key)
+
         if task["status"] == status:
+
             tag_found = True
             if tag_to_show != "all":
                 if len(task["tags"][0]) > 0:
                     tag_found = filter_tag(id_key, tag_to_show.lower())
+                else:
+                    continue
 
             if not tag_found:
                 continue
 
             if 'privat' in task["tags"]:
-                print(crayons.blue(id_key), "##", crayons.magenta(task["text"].strip()), "##")
+                print(crayons.blue(id_key), " " * space_after_id, "## ", crayons.magenta(title), " ##", " " * (length_space - 6), date_added, sep='')
             else:
-                print(crayons.blue(id_key), task["text"])
-            x = len(id_key)
+                print(crayons.blue(id_key), " " * space_after_id, title, " " * length_space, date_added, sep='')
 
-            if len(task["comment"][0]) > 0:
-                print_comment(id_key, x)
+            if show_comments:
+                if len(task["comment"][0]) > 0:
+                    print_comment(id_key)
 
             if len(task["tags"][0]) > 0:
-                print_tags(id_key, x)
-
-
-# def list_finished_tasks():
-#     for id_key, task in todos["tasks"].items():
-#         if task["status"] == "finished":
-#             print(crayons.blue(id_key), task["text"])
-#             x = len(id_key)
-
-#             if len(task["comment"][0]) > 0:
-#                 print_comment(id_key, x)
-
-#             if len(task["tags"][0]) > 0:
-#                 print_tags(id_key, x)
-
-#             if len(task["result"]) > 0:
-#                 print_result(id_key, x)
+                print_tags(id_key)
+            
+            if task["status"] == "finished":
+                if len(todos["tasks"][id_key]["result"]) != 0:
+                    print_result(id_key)
 
 
 actions = {
-    "Add task": "n",
+    "Add task 'n Description'": "n",
     "Edit task": "e",
     "Add comment": "c",
     "Add tag": "t",
     "Remove task": "r",
     "Finish task": "f",
     "Reopen task": "o",
-    "List task": "l",
+    "List all task": "l",
+    "List finished tasks": "lf",
     "List actions": "a",
     "Cancel": "y",
     "Reset ALL": "resetall",
+    "Add key/value to my_todolist.json": "addkey",
 }
 
 
@@ -152,13 +156,14 @@ def extract_data(inp: str):
     # ACTION
     if inp == "resetall":
         action = "resetall"
+    elif inp == "addkey":
+        action = "addkey"
     else:
         action = inp[:1].lower()
         if action not in actions.values():
             action = None
 
     # TAGS
-    # tags = inp.split("*")[1:]
     tags = [x.strip(' ') for x in inp.split("*")[1:]]
     if not tags:
         tags = [""]
@@ -175,39 +180,61 @@ def extract_data(inp: str):
 
     # TEXT
     try:
-        text = inp.partition(task_id)[2].lstrip()
+        text = inp.partition(task_id)[2].strip()
     except TypeError:
         try:
-            text = inp.partition('n')[2].lstrip()
+            text = inp.partition('n')[2].strip()
         except TypeError:
             text = None
 
     return action, task_id, text, tags
 
 
+def add_key_value_to_my_todolist_json():
+    key = input(">>>>  Name of new key:\t") or 0
+    if key:
+        value = input(">>>>>>  Value:\t") or 0
+        if value:
+            for k in todos["tasks"].keys():
+                print(f"Adding [{key}] to [{k}].")
+                todos["tasks"][k][key] = value
+
+
+def print_params(bList_open_tasks, bList_finished_tasks, bList_actions, tag):
+    color_open_tasks = crayons.green('open') if bList_open_tasks else crayons.red('open')
+    color_finished_tasks = crayons.green('finished') if bList_finished_tasks else crayons.red('finished')
+    color_actions = crayons.green('actions') if bList_actions else crayons.red('actions')
+
+    print(color_open_tasks, '|', color_finished_tasks, '|', color_actions, '|', 'Tag:', crayons.yellow(tag))
+
+
 def _main():
     go = True
-    bList_tasks = False
+    bList_finished_tasks = False
+    bList_open_tasks = True
     bList_actions = False
+    bShow_comments = True
     tag = "all"
     while go:
+        today = str(datetime.date.today())
         # clear screen
         os.system('cls')
 
-        print("#" * 82, sep='')
-        print("#" * 37, crayons.yellow(" TASKS "), "#" * 36)
-        print("#" * 82)
+        print("#" * length_overall, sep='')
+        print("#" * ((length_overall // 2) - 4), crayons.yellow(" TASKS "), "#" * ((length_overall // 2) - 5))
+        print("#" * length_overall)
 
-        if bList_tasks:
-            print("\n##", crayons.blue(" FINISHED "), "#" * 70, sep='')
-            list_tasks('finished', tag)
+        if bList_finished_tasks:
+            print("\n##", crayons.blue(" FINISHED "), "#" * (length_overall - 12), sep='')
+            list_tasks('finished', tag, bShow_comments)
 
-        x = 70 - len(tag)
-        print("\n##", crayons.green(" OPEN "), "## ", crayons.yellow(tag.upper()), " ", "#" * x, "\n", sep='')
-        list_tasks('open', tag)
-        print("\n", "#" * 82, sep='')
+        if bList_open_tasks:
+            x = length_overall - 12 - len(tag)
+            print("\n##", crayons.green(" OPEN "), "## ", crayons.yellow(tag.upper()), " ", "#" * x, "\n", sep='')
+            list_tasks('open', tag, bShow_comments)
+            print("\n", "#" * length_overall, sep='')
 
-        tag = "all"
+        print_params(bList_open_tasks, bList_finished_tasks, bList_actions, tag)
 
         if bList_actions:
             list_actions()
@@ -223,11 +250,13 @@ def _main():
             if action_input[0] == "*":
                 if len(action_input) > 1:
                     tag = action_input[1:]
+                else:
+                    tag = "all"
 
             action, task_id, text, tags = extract_data(action_input)
 
             if action == "resetall":
-                sure = input(">>  SURE? Delete ALL?\t('yes'/'y'):  ") or 0
+                sure = input(">>  SURE? Delete ALL?\t('yes'/'y'):  ")
                 if sure.lower() in ['yes', 'y']:
                     todos["ids"] = 0
                     todos["tasks"] = {}
@@ -236,18 +265,26 @@ def _main():
 
             if action == "y":                                               # Cancel program
                 go = False
-            elif action == "l":                                             # List all tasks
-                bList_tasks = not bList_tasks
+            elif action == "l":
+                if action_input.lower() == "lf":
+                    bList_finished_tasks = True                             # Show ONLY finished tasks
+                    bList_open_tasks = False
+                else:
+                    bList_finished_tasks = not bList_finished_tasks         # Toggle show finished tasks
+                    bList_open_tasks = True
             elif action == "a":                                             # List all available actions
                 bList_actions = not bList_actions
-            elif action == "c":                                             # Add comment
-                if len(todos["tasks"][task_id]["comment"][0]) == 0:
-                    todos["tasks"][task_id]["comment"] = [text]
+            elif action == "c":
+                if task_id:                                                 # Add comment
+                    if len(todos["tasks"][task_id]["comment"][0]) == 0:
+                        todos["tasks"][task_id]["comment"] = [[text, today]]
+                    else:
+                        todos["tasks"][task_id]["comment"].append([text, today])
                 else:
-                    todos["tasks"][task_id]["comment"].append(text)
+                    bShow_comments = not bShow_comments                     # Toggle show comments
             elif action == "n":                                             # New entry
                 task_id = get_id()
-                todos["tasks"][task_id] = {"text": text, "status": "open", "comment": [""], "tags": tags}
+                todos["tasks"][task_id] = {"text": text, "status": "open", "comment": [""], "tags": tags, "date_added": today}
             elif action == "f":                                             # Set status to FINISH
                 todos["tasks"][task_id]["status"] = "finished"
                 if text:                                                    # and set Result
@@ -265,6 +302,8 @@ def _main():
                     for tag in tags:
                         todos["tasks"][task_id]["tags"].append(tag)
                 tag = 'all'                                                 # reset variable tag, coz filter
+            elif action == "addkey":                                             # Edit existing task
+                add_key_value_to_my_todolist_json()
             dump_todo_list_to_json()
 
 
