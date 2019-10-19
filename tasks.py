@@ -152,6 +152,7 @@ actions = {
     "Cancel": "y",
     "Reset ALL": "resetall",
     "Add key/value to my_todolist.json": "addkey",
+    "Filter tasks by date": "<2019-01-01",
 }
 
 
