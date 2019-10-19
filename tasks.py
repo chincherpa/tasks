@@ -2,6 +2,7 @@
 
 import datetime
 import json
+import operator
 import os
 import re
 
@@ -20,7 +21,7 @@ length_overall = 90
 def dump_todo_list_to_json():
     with open(path_to_js, "w") as f:
         json.dump(todos, f, indent=4)
-    print(crayons.yellow("\n[INFO] saved", bold=True))
+    # print(crayons.yellow("\n[INFO] saved", bold=True))
 
 
 if not os.path.isfile(path_to_js):
@@ -85,7 +86,7 @@ def print_result(id_key):
     print(' ' * 3, crayons.blue(res[0]), '.' * length_space, crayons.blue(res[1]))
 
 
-def list_tasks(status: str, tag_to_show: str = 'all', show_comments: bool = True):
+def list_tasks(status: str, tag_to_show: str = 'all', show_comments: bool = True, show_date = False):
     for id_key, task in todos["tasks"].items():
         title = task["text"].strip()
         date_added = task["date_added"]
@@ -94,6 +95,21 @@ def list_tasks(status: str, tag_to_show: str = 'all', show_comments: bool = True
         space_after_id = 3 - len(id_key)
 
         if task["status"] == status:
+
+            # show only tasks with date_added greater or lower than SHOW_DATE
+            if show_date:
+                gt_lt = show_date[0]
+
+                if gt_lt == '<':
+                    comp = operator.lt
+                else:
+                    comp = operator.gt
+
+                date_ = show_date[1:]
+                date_filter = datetime.datetime.strptime(date_, '%y-%m-%d')
+                task_date = datetime.datetime.strptime(date_added, '%y-%m-%d')
+                if not comp(task_date, date_filter):
+                    continue
 
             tag_found = True
             if tag_to_show != "all":
@@ -200,12 +216,12 @@ def add_key_value_to_my_todolist_json():
                 todos["tasks"][k][key] = value
 
 
-def print_params(bList_open_tasks, bList_finished_tasks, bList_actions, tag):
+def print_params(bList_open_tasks, bList_finished_tasks, bList_actions, tag, date_):
     color_open_tasks = crayons.green('open') if bList_open_tasks else crayons.red('open')
     color_finished_tasks = crayons.green('finished') if bList_finished_tasks else crayons.red('finished')
     color_actions = crayons.green('actions') if bList_actions else crayons.red('actions')
 
-    print(color_open_tasks, '|', color_finished_tasks, '|', color_actions, '|', 'Tag:', crayons.yellow(tag))
+    print(color_open_tasks, color_finished_tasks, color_actions, 'Tag: ' + crayons.yellow(tag), crayons.yellow(date_) if date_ else '', sep=' | ')
 
 
 def _main():
@@ -214,6 +230,7 @@ def _main():
     bList_open_tasks = True
     bList_actions = False
     bShow_comments = True
+    date_str = False
     tag = "all"
     while go:
         today = str(datetime.date.today())
@@ -231,10 +248,12 @@ def _main():
         if bList_open_tasks:
             x = length_overall - 12 - len(tag)
             print("\n##", crayons.green(" OPEN "), "## ", crayons.yellow(tag.upper()), " ", "#" * x, "\n", sep='')
-            list_tasks('open', tag, bShow_comments)
+            list_tasks('open', tag, bShow_comments, date_str)
             print("\n", "#" * length_overall, sep='')
 
-        print_params(bList_open_tasks, bList_finished_tasks, bList_actions, tag)
+        print_params(bList_open_tasks, bList_finished_tasks, bList_actions, tag, date_str)
+        # Reset date to show
+        date_str = False
 
         if bList_actions:
             list_actions()
@@ -242,16 +261,21 @@ def _main():
         action_input = input(">>  ") or 0
 
         if action_input:
-            # continue if missing parameter ("e4")
-            if len(action_input) == 1 and action_input in ['n', 'f', 'o', 'r', 'e', 't']:
+            # continue if missing task id ("e4")
+            if action_input in ['n', 'f', 'o', 'r', 'e', 't']:
                 continue
 
             # *TAG_TO_FILTER "*992" - Default "all"
             if action_input[0] == "*":
                 if len(action_input) > 1:
                     tag = action_input[1:]
+                    continue
                 else:
                     tag = "all"
+            # Filter by date
+            elif re.match("^(<|>)(\d){4}-(\d){2}-(\d){2}", action_input):
+                date_str = action_input
+                continue
 
             action, task_id, text, tags = extract_data(action_input)
 

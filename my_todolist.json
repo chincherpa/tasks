@@ -1,5 +1,5 @@
 {
-    "ids": 2,
+    "ids": 4,
     "tasks": {
         "1": {
             "text": "Build closet",
@@ -15,7 +15,8 @@
                 ]
             ],
             "tags": [
-                ""
+                "newtag",
+                "second"
             ],
             "date_added": "2019-10-18"
         },
@@ -29,6 +30,28 @@
                 ""
             ],
             "date_added": "2019-10-18"
+        },
+        "3": {
+            "text": "Review new Laptop2",
+            "status": "open",
+            "comment": [
+                ""
+            ],
+            "tags": [
+                ""
+            ],
+            "date_added": "2019-09-18"
+        },
+        "4": {
+            "text": "Review new Laptop3",
+            "status": "open",
+            "comment": [
+                ""
+            ],
+            "tags": [
+                ""
+            ],
+            "date_added": "2019-10-10"
         }
     }
 }
