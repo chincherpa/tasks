@@ -83,7 +83,7 @@ def print_result(id_key):
     res = todos["tasks"][id_key]["result"]
     length_result = len(res[0])
     length_space = length_overall - (length_result + 3 + 10)
-    print(' ' * 3, crayons.blue(res[0]), '.' * length_space, crayons.blue(res[1]))
+    print(' ' * 3, crayons.blue(res[0]), '.' * length_space, 'Datum')  #crayons.blue(res[1]))
 
 
 def list_tasks(status: str, tag_to_show: str = 'all', show_comments: bool = True, show_date = False):
@@ -134,7 +134,7 @@ def list_tasks(status: str, tag_to_show: str = 'all', show_comments: bool = True
                 print_tags(id_key)
             
             if task["status"] == "finished":
-                if len(todos["tasks"][id_key]["result"]) != 0:
+                if len(todos["tasks"][id_key]["result"]) > 0:
                     print_result(id_key)
 
 
@@ -309,11 +309,20 @@ def _main():
                     bShow_comments = not bShow_comments                     # Toggle show comments
             elif action == "n":                                             # New entry
                 task_id = get_id()
-                todos["tasks"][task_id] = {"text": text, "status": "open", "comment": [""], "tags": tags, "date_added": today}
+                print(f'{task_id=}')
+                todos["tasks"][task_id] = {}
+                todos["tasks"][task_id]["text"] = text
+                todos["tasks"][task_id]["status"] = "open"
+                todos["tasks"][task_id]["comment"] = [""]
+                todos["tasks"][task_id]["tags"] = tags
+                todos["tasks"][task_id]["date_added"] = today
+                todos["tasks"][task_id]["result"] = ""
             elif action == "f":                                             # Set status to FINISH
                 todos["tasks"][task_id]["status"] = "finished"
-                if text:                                                    # and set Result
-                    todos["tasks"][task_id]["result"] = text
+                # if text:                                                    # and set Result
+                #     todos["tasks"][task_id]["result"] = text
+                # else:
+                todos["tasks"][task_id]["result"] = text
             elif action == "o":                                             # Set status to OPEN
                 todos["tasks"][task_id]["status"] = "open"
             elif action == "r":                                             # Remove existing task

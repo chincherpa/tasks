@@ -1,5 +1,5 @@
 {
-    "ids": 4,
+    "ids": 6,
     "tasks": {
         "1": {
             "text": "Build closet",
@@ -18,40 +18,68 @@
                 "newtag",
                 "second"
             ],
-            "date_added": "2019-10-18"
+            "date_added": "2019-10-18",
+            "result": ""
         },
         "2": {
             "text": "Review new Laptop",
-            "status": "open",
+            "status": "finished",
             "comment": [
                 ""
             ],
             "tags": [
                 ""
             ],
-            "date_added": "2019-10-18"
+            "date_added": "2019-10-18",
+            "result": ""
         },
         "3": {
             "text": "Review new Laptop2",
-            "status": "open",
+            "status": "finished",
             "comment": [
                 ""
             ],
             "tags": [
                 ""
             ],
-            "date_added": "2019-09-18"
+            "date_added": "2019-09-18",
+            "result": ""
         },
         "4": {
             "text": "Review new Laptop3",
-            "status": "open",
+            "status": "finished",
             "comment": [
                 ""
             ],
             "tags": [
                 ""
             ],
-            "date_added": "2019-10-10"
+            "date_added": "2019-10-10",
+            "result": "fertig4"
+        },
+        "5": {
+            "text": "neu",
+            "status": "finished",
+            "comment": [
+                ""
+            ],
+            "tags": [
+                ""
+            ],
+            "date_added": "2019-10-20",
+            "result": ""
+        },
+        "6": {
+            "text": "neu6",
+            "status": "finished",
+            "comment": [
+                ""
+            ],
+            "tags": [
+                ""
+            ],
+            "date_added": "2019-10-20",
+            "result": ""
         }
     }
 }
