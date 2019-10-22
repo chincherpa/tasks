@@ -1,7 +1,7 @@
 ![alt text](https://github.com/chincherpa/tasks/blob/master/screenshot.jpg)
 
 Possible actions:
-+    "Add todo 'n text'": "n"
++    "Add todo": "n text"
 +    "Edit todo title": "e# text"
 +    "Toggle comments": "c"
 +    "Show comments of only one todo": "c#"
