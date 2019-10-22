@@ -7,6 +7,7 @@ Possible actions:
 +    "Show comments of only one todo": "c#"
 +    "Add comment": "c# text"
 +    "Add tag": "t# \*tag"
++    "Show all todos with this tag" : "\*tag" 
 +    "Remove todo": "r#"
 +    "Finish todo with result": "f# text"
 +    "Reopen todo": "o#"
