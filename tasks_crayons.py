@@ -8,9 +8,7 @@ import operator
 import os
 import re
 
-from colorama import init, Fore, Back, Style
-init(autoreset=True)
-# colorama: BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE, RESET.
+import crayons
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 js_name = "my_todolist.json"
@@ -18,10 +16,14 @@ path_to_js = os.path.join(dir_path, js_name)
 
 length_overall = 90
 
+# crayons: 'red', 'green', 'yellow', 'blue'
+# crayons: 'black', 'magenta', 'cyan', 'white'
+
 
 def dump_todo_list_to_json():
     with open(path_to_js, "w") as f:
         json.dump(todos, f, indent=4)
+    # print(crayons.yellow("\n[INFO] saved", bold=True))
 
 
 if not os.path.isfile(path_to_js):
@@ -46,8 +48,8 @@ def list_all_tasks():
     print("ids:", todos["ids"])
     for id_key, task in todos["tasks"].items():
         print("-" * 40)
-        print(Fore.BLUE + f'{id_key}', task["status"], task["text"])
-        print(Fore.YELLOW + f'{task["tags"]}')
+        print(crayons.blue(id_key), task["status"], task["text"])
+        print(crayons.yellow(task["tags"]))
 
 
 def filter_tag(id_key, tag):
@@ -61,21 +63,21 @@ def print_comment(id_key):
     for c in todos["tasks"][id_key]["comment"]:
         length_comment = len(c[0])
         length_space = length_overall - (length_comment + 16)
-        print(' ' * 3, Fore.BLUE + f'{c[0]}', ' ' * length_space, Fore.BLUE + f'{c[1]}')
+        print(' ' * 3, crayons.blue(c[0]), ' ' * length_space, crayons.blue(c[1]))
 
 
 def print_tags(id_key):
     id_tags = todos["tasks"][id_key]["tags"]
     print(' ' * 4, end='')
     if "high" in id_tags:
-        print(Fore.WHITE + Back.RED + "HIGH", '- ', end='')
+        print(crayons.red("HIGH"), '- ', end='')
     elif "low" in id_tags:
-        print(Fore.BLACK + Back.GREEN + "low", '- ', end='')
+        print(crayons.green("low"), '- ', end='')
     for t in id_tags:
         if t in ["high", "low"]:
             continue
         else:
-            print(Fore.YELLOW + f'{t}', '- ', end='')
+            print(crayons.yellow(t), '- ', end='')
     print('')
 
 
@@ -84,10 +86,10 @@ def print_result(id_key):
     if len(res) > 0:
         length_result = len(res[0])
         length_space = length_overall - (length_result + 3 + 10)
-        print(' ' * 3, Fore.BLUE + f'{res[0]}', '.' * length_space, Fore.BLUE + f'{res[1]}')
+        print(' ' * 3, crayons.cyan(res[0]), '.' * length_space, crayons.cyan(res[1]))
 
 
-def list_tasks(status: str, tag_to_show: str = 'all', show_comments: bool = True, show_tags: bool = True, show_date = False, id_to_show = None):
+def list_tasks(status: str, tag_to_show: str = 'all', show_comments: bool = True, show_date = False, id_to_show = None):
     for id_key, task in todos["tasks"].items():
         title = task["text"].strip()
         date_added = task["date_added"]
@@ -127,10 +129,15 @@ def list_tasks(status: str, tag_to_show: str = 'all', show_comments: bool = True
                 continue
 
             comments_plus = ''
+            print('show_comments:', show_comments, ' - has_comments:', has_comments)
             if not show_comments and has_comments:
-                comments_plus = Fore.BLUE + ' +'
+                comments_plus = crayons.blue(' +')
 
-            print(Fore.BLUE + f'{id_key}', " " * space_after_id, title, " " * length_space, date_added, comments_plus, sep='')
+            # if 'privat' in task["tags"]:
+            #     print(crayons.blue(id_key), " " * space_after_id, "## ", crayons.magenta(title), " ##", " " * (length_space - 6), date_added, comments_plus, sep='')
+            # else:
+            #     print(crayons.blue(id_key), " " * space_after_id, title, " " * length_space, date_added, comments_plus, sep='')
+            print(crayons.blue(id_key), " " * space_after_id, title, " " * length_space, date_added, comments_plus, sep='')
 
             if show_comments:
                 if has_comments:
@@ -139,9 +146,8 @@ def list_tasks(status: str, tag_to_show: str = 'all', show_comments: bool = True
                 if id_key == id_to_show and has_comments:
                     print_comment(id_key)
 
-            if show_tags:
-                if len(task["tags"][0]) > 0:
-                    print_tags(id_key)
+            if len(task["tags"][0]) > 0:
+                print_tags(id_key)
             
             if task["status"] == "finished":
                 if len(todos["tasks"][id_key]["result"]) > 0:
@@ -173,9 +179,9 @@ def list_actions():
         x = length - len(action) - 6
         if action == "Reset ALL":
             x = 2
-            print('|', Fore.YELLOW + f'{action}', ' ' * x, '[', Fore.YELLOW + f'{key.upper()}', ']', ' |', sep='')
+            print('|', crayons.yellow(action), ' ' * x, '[', crayons.yellow(key.upper()), ']', ' |', sep='')
         else:
-            print('|', Fore.YELLOW + f'{action}', ' ' * x, '[', Fore.YELLOW + f'{key.upper()}', ']', ' |', sep='')
+            print('|', crayons.yellow(action), ' ' * x, '[', crayons.yellow(key.upper()), ']', ' |', sep='')
     print('-' * length, '\n')
 
 
@@ -201,17 +207,17 @@ def list_tags(status: str):
     tags.sort()
 
     print('')
-    print("#" * ((length_overall // 2) - 6), Fore.YELLOW + " USED TAGS ", "#" * ((length_overall // 2) - 10))
+    print("#" * ((length_overall // 2) - 6), crayons.yellow(" USED TAGS "), "#" * ((length_overall // 2) - 10))
     print('')
 
     for tag in tags:
         space = space_max - len(tag)
         if tag.lower() == "high":
-            print(Fore.RED + f'{tag}', " " * space, num_of_tags[tag])
+            print(crayons.red(tag), " " * space, num_of_tags[tag])
         elif tag.lower() == "low":
-            print(Fore.GREEN + f'{tag}', " " * space, num_of_tags[tag])
+            print(crayons.blue(tag), " " * space, num_of_tags[tag])
         elif tag.lower() == "privat":
-            print(Fore.MAGENTA + f'{tag}', " " * space, num_of_tags[tag])
+            print(crayons.magenta(tag), " " * space, num_of_tags[tag])
         else:
             print(tag, " " * space, num_of_tags[tag])
 
@@ -268,15 +274,15 @@ def add_key_value_to_my_todolist_json():
 
 
 def print_params(bToggle_open_tasks, bToggle_finished_tasks, bToggle_comments, comments_id, bToggle_actions, tag, date_):
-    color_open_tasks = Fore.GREEN + 'open' if bToggle_open_tasks else Fore.RED + 'open'
-    color_finished_tasks = Fore.GREEN + 'finished' if bToggle_finished_tasks else Fore.RED + 'finished'
+    color_open_tasks = crayons.green('open') if bToggle_open_tasks else crayons.red('open')
+    color_finished_tasks = crayons.green('finished') if bToggle_finished_tasks else crayons.red('finished')
     if comments_id:
-        color_comments = Fore.RED + 'comments' + f' (only {comments_id})'
+        color_comments = crayons.red('comments') + f' (only {comments_id})'
     else:
-        color_comments = Fore.GREEN + 'comments' if bToggle_comments else Fore.RED + 'comments'
-    color_actions = Fore.GREEN + 'actions' if bToggle_actions else Fore.RED + 'actions'
+        color_comments = crayons.green('comments') if bToggle_comments else crayons.red('comments')
+    color_actions = crayons.green('actions') if bToggle_actions else crayons.red('actions')
 
-    print(color_open_tasks, color_finished_tasks, color_comments, color_actions, 'Tag: ' + Fore.YELLOW + f'{tag}', Fore.YELLOW + f'{date_}' if date_ else '', sep=' | ')
+    print(color_open_tasks, color_finished_tasks, color_comments, color_actions, 'Tag: ' + crayons.yellow(tag), crayons.yellow(date_) if date_ else '', sep=' | ')
 
 
 def _main():
@@ -285,7 +291,6 @@ def _main():
     bList_open_tasks = True
     bList_actions = False
     bShow_comments = True
-    bShow_tags = True
     bList_tags = False
     date_str = False
     task_id = None
@@ -296,7 +301,7 @@ def _main():
         os.system('cls')
 
         # print("#" * length_overall, sep='')
-        print("#" * ((length_overall // 2) - 4), Fore.YELLOW + " TASKS ", "#" * ((length_overall // 2) - 5))
+        print("#" * ((length_overall // 2) - 4), crayons.yellow(" TASKS "), "#" * ((length_overall // 2) - 5))
         # print("#" * length_overall)
 
         if bList_tags:
@@ -305,13 +310,13 @@ def _main():
             action_input = input(">>  continue... ")
         else:
             if bList_finished_tasks:
-                print("\n##", Fore.BLUE + " FINISHED ", "#" * (length_overall - 12), sep='')
-                list_tasks('finished', tag, bShow_comments, bShow_tags, date_str, task_id)
+                print("\n##", crayons.blue(" FINISHED "), "#" * (length_overall - 12), sep='')
+                list_tasks('finished', tag, bShow_comments, task_id)
 
             if bList_open_tasks:
                 x = length_overall - 12 - len(tag)
-                print("\n##", Fore.GREEN + " OPEN ", "## ", Fore.YELLOW + f'{tag.upper()}', " ", "#" * x, "\n", sep='')
-                list_tasks('open', tag, bShow_comments, bShow_tags, date_str, task_id)
+                print("\n##", crayons.green(" OPEN "), "## ", crayons.yellow(tag.upper()), " ", "#" * x, "\n", sep='')
+                list_tasks('open', tag, bShow_comments, date_str, task_id)
                 print("\n", "#" * length_overall, sep='')
 
 
@@ -358,8 +363,6 @@ def _main():
                     if action_input.lower() == "lf":
                         bList_finished_tasks = True                             # Show ONLY finished tasks
                         bList_open_tasks = False
-                    elif action_input.lower() == "lt":                          # Show list of used tags
-                        bList_tags = not bList_tags
                     else:
                         bList_finished_tasks = not bList_finished_tasks         # Toggle show finished tasks
                         bList_open_tasks = True
@@ -403,7 +406,7 @@ def _main():
                             for new_tag in tags:
                                 todos["tasks"][task_id]["tags"].append(new_tag)
                     else:
-                        bShow_tags = not bShow_tags
+                        bList_tags = not bList_tags
                 elif action == "addkey":                                             # Edit existing task
                     add_key_value_to_my_todolist_json()
                 dump_todo_list_to_json()
