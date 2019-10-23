@@ -280,6 +280,7 @@ def print_params(bToggle_open_todos, bToggle_finished_todos, bToggle_comments, c
 
 
 def _main():
+    global length_overall
     go = True
     bList_finished_todos = False
     bList_open_todos = True
@@ -325,6 +326,17 @@ def _main():
 
             action_input = input(">>  ") or 0
 
+            if action_input == "resetall":
+                sure = input(">>  SURE? Delete ALL?\t('yes'/'y'):  ")
+                if sure.lower() in ['yes', 'y']:
+                    todos["ids"] = 0
+                    todos["todos"] = {}
+                    dump_todo_list_to_json()
+                continue
+            elif action_input == "length":
+                length_overall = int(input(">>  New length (" + str(length_overall) + "):  "))
+                continue
+
             if action_input:
                 # continue if missing todo id ("e4")
                 if action_input in ['n', 'f', 'o', 'r', 'e']:
@@ -332,7 +344,8 @@ def _main():
 
                 # *TAG_TO_FILTER "*992" - Default "all"
                 if action_input[0] == "*":
-                    if len(action_input) > 1:
+                    # if len(action_input) > 1:
+                    if re.match("^(\*)(\d)+$", action_input):
                         tag = action_input[1:]
                         continue
                     else:
@@ -343,14 +356,6 @@ def _main():
                     continue
 
                 action, todo_id, text, tags = extract_data(action_input)
-
-                if action == "resetall":
-                    sure = input(">>  SURE? Delete ALL?\t('yes'/'y'):  ")
-                    if sure.lower() in ['yes', 'y']:
-                        todos["ids"] = 0
-                        todos["todos"] = {}
-                        dump_todo_list_to_json()
-                    continue
 
                 if action == "y":                                               # Cancel program
                     go = False
@@ -395,13 +400,14 @@ def _main():
                 elif action == "e":                                             # Edit existing todo
                     todos["todos"][todo_id]["text"] = text
                 elif action == "t":                                             # add tags
-                    if todo_id:               
-                        show_this_id = todo_id                                  # Add comment
+                    if todo_id:
+                        # show_this_id = todo_id
                         if len(todos["todos"][todo_id]["tags"][0]) == 0:
                             todos["todos"][todo_id]["tags"] = tags
                         else:
                             for new_tag in tags:
-                                todos["todos"][todo_id]["tags"].append(new_tag)
+                                if new_tag not in todos["todos"][todo_id]["tags"]:
+                                    todos["todos"][todo_id]["tags"].append(new_tag)
                     else:
                         bShow_tags = not bShow_tags
                 elif action == "addkey":                                             # Edit existing todo
