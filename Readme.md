@@ -1,4 +1,4 @@
-![alt text](https://github.com/chincherpa/tasks/blob/master/screenshot.jpg)
+![alt text](screenshot.jpg)
 
 Possible actions:
 +    "Add todo": "n text"
