@@ -14,7 +14,7 @@ init(autoreset=True)
 # colorama: BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE, RESET.
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
-js_name = "todos.json"
+js_name = "todos_old.json"
 path_to_js = os.path.join(dir_path, js_name)
 
 length_overall = 90
@@ -184,7 +184,7 @@ actions = {
     "List actions": "a",
     "Cancel": "y",
     "Reset ALL": "resetall",
-    "Add key/value to todos.json": "addkey",
+    "Add key/value to todos_old.json": "addkey",
     "Filter todos by date": "<2019-01-01",
 }
 

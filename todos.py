@@ -14,7 +14,7 @@ init(autoreset=True)
 # colorama: BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE, RESET.
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
-js_name = "todos_class.json"
+js_name = "todos.json"
 path_to_js = os.path.join(dir_path, js_name)
 
 length_overall = 90
@@ -43,10 +43,10 @@ class Todo:
 
     def print_tags(self):
         print(" " * 4, end="")
-        if "high" in self.tags:
-            print(Fore.WHITE + Back.RED + "HIGH", "- ", end="")
-        elif "low" in self.tags:
-            print(Fore.BLACK + Back.GREEN + "low", "- ", end="")
+        # if "high" in self.tags:
+        #     print(Fore.WHITE + Back.RED + "HIGH", "- ", end="")
+        # elif "low" in self.tags:
+        #     print(Fore.BLACK + Back.GREEN + "low", "- ", end="")
         for t in self.tags:
             if t in ["high", "low"]:
                 continue
@@ -77,20 +77,17 @@ def dump_todo_list_to_json():
 if not os.path.isfile(path_to_js):
     print("not os.path.isfile(path_to_js)")
     open(js_name, "a").close()
-    todos = {}
-    todos["ids"] = 0
-    todos["todos"] = {}
+    todos = {"ids": 0, "todos": {}}
     dump_todo_list_to_json()
 else:
-    with open(path_to_js, "r") as f:
-        todos = json.load(f)
+    with open(path_to_js, "r") as jsf:
+        todos = json.load(jsf)
 
 todos_classes = {}
 
 
 def create_instances():
     for t_id, todo in todos["todos"].items():
-        # print(t_id, todo)
         todos_classes[t_id] = Todo(**todo)
 
 
@@ -116,12 +113,12 @@ def filter_tag(id_key, tag):
 
 
 def list_todos(
-    status: str,
-    tag_to_show: str = "all",
-    show_comments: bool = True,
-    show_tags: bool = True,
-    show_date=False,
-    id_to_show=None,
+        status: str,
+        tag_to_show: str = "all",
+        show_comments: bool = True,
+        show_tags: bool = True,
+        show_date=False,
+        id_to_show=None,
 ):
     for id_key, todo in todos_classes.items():
         title = todo.title
@@ -150,7 +147,7 @@ def list_todos(
 
             tag_found = True
             if tag_to_show != "all":
-                if len(todo.tags[0]) > 0:
+                if len(todo.tags) > 0:
                     tag_found = filter_tag(id_key, tag_to_show.lower())
                 else:
                     continue
@@ -162,11 +159,11 @@ def list_todos(
             if not show_comments and has_comments:
                 if id_to_show:
                     if id_key != id_to_show:
-                        comments_plus = Fore.BLUE + "."
+                        comments_plus = Fore.BLUE + "+"
                 else:
-                    comments_plus = Fore.BLUE + "."
+                    comments_plus = Fore.BLUE + "+"
 
-            if "privat" in todo.tags[0]:
+            if "privat" in todo.tags:
                 title = Fore.YELLOW + f"{title}"
 
             print(
@@ -185,7 +182,7 @@ def list_todos(
                 todo.print_comment()
 
             if show_tags:
-                if len(todo.tags[0]) > 0:
+                if len(todo.tags) > 0:
                     todo.print_tags()
 
             if todo.status == "finished":
@@ -207,7 +204,6 @@ actions = {
     "List actions": "a",
     "Cancel": "y",
     "Reset ALL": "resetall",
-    "Add key/value to todos.json": "addkey",
     "Filter todos by date": "<2019-01-01",
 }
 
@@ -287,7 +283,9 @@ def list_tags(status: str):
 
 
 def extract_input(inp: str):
-    action, todo_id, text = re.match("([a-zA-Z]+)(\d*) ?(.*]*)", inp).groups()
+    if inp[0] == "*":
+        return "*", None, None, None
+    action, todo_id, text = re.match(r"([a-zA-Z]+)(\d*) ?(.*]*)", inp).groups()
 
     # Action
     if action not in actions.values():
@@ -301,74 +299,31 @@ def extract_input(inp: str):
 
     return action, todo_id, text, tags
 
-    # # ACTION
-    # ########################################## ([a-zA-Z]+)(\d*) ?(.*]*)
-    # if inp == "resetall":
-    #     action = "resetall"
-    # elif inp == "addkey":
-    #     action = "addkey"
-    # else:
-    #     action = inp[:1].lower()
-    #     if action not in actions.values():
-    #         action = None
-
-    # # TAGS
-    # tags = [x.strip(" ") for x in inp.split("*")[1:]]
-    # if not tags:
-    #     tags = [""]
-
-    # # input Tags abschneiden
-    # inp = inp.split("*")[0]
-    # # todo ID
-    # try:
-    #     todo_id = re.search(r"\d+", inp).group()
-    #     if todo_id not in todos["todos"].keys():
-    #         todo_id = None
-    # except AttributeError:
-    #     todo_id = None
-
-    # # title
-    # try:
-    #     title = inp.partition(todo_id)[2].strip()
-    # except TypeError:
-    #     try:
-    #         title = inp.partition("n")[2].strip()
-    #     except TypeError:
-    #         title = None
-
-    # # ONLY Python Ver. >= 3.8
-    # # print(f'{action=}, {todo_id=}, {title=}, {tags=}')
-    # # sleep(5)
-    # return action, todo_id, title, tags
-
 
 def print_params(
-    bToggle_open_todos,
-    bToggle_finished_todos,
-    bToggle_comments,
-    comments_id,
-    bToggle_actions,
-    tag,
-    date_,
-):
+        bToggle_open_todos,
+        bToggle_finished_todos,
+        bToggle_comments,
+        bToggle_tags,
+        comments_id,
+        bToggle_actions,
+        tag,
+        date_):
     color_open_todos = Fore.GREEN + "open" if bToggle_open_todos else Fore.RED + "open"
-    color_finished_todos = (
-        Fore.GREEN + "finished" if bToggle_finished_todos else Fore.RED + "finished"
-    )
+    color_finished_todos = Fore.GREEN + "finished" if bToggle_finished_todos else Fore.RED + "finished"
     if comments_id:
         color_comments = Fore.RED + "comments " + Fore.GREEN + f"(only {comments_id})"
     else:
-        color_comments = (
-            Fore.GREEN + "comments" if bToggle_comments else Fore.RED + "comments"
-        )
+        color_comments = (Fore.GREEN + "comments" if bToggle_comments else Fore.RED + "comments")
     color_actions = Fore.GREEN + "actions" if bToggle_actions else Fore.RED + "actions"
+    color_tags = Fore.GREEN + "Tags: " if bToggle_tags else Fore.RED + "Tags: "
 
     print(
         color_open_todos,
         color_finished_todos,
         color_comments,
         color_actions,
-        "Tag: " + Fore.YELLOW + f"{tag}",
+        color_tags + Fore.YELLOW + f"{tag}",
         Fore.YELLOW + f"{date_}" if date_ else "",
         sep=" | ",
     )
@@ -405,7 +360,7 @@ def _main():
         if bList_tags:
             list_tags("open")
             bList_tags = False
-            action_input = input(">>  continue... ")
+            _ = input(">>  continue... ")
         else:
             if bList_finished_todos:
                 print(
@@ -439,6 +394,7 @@ def _main():
                 bList_open_todos,
                 bList_finished_todos,
                 bShow_comments,
+                bShow_tags,
                 show_this_id,
                 bList_actions,
                 tag,
@@ -468,24 +424,25 @@ def _main():
                 continue
 
             if action_input:
-                # continue if missing todo id ("e4")
+                # continue if missing id ("e4")
                 if action_input in ["n", "f", "o", "r", "e"]:
                     continue
 
                 # *TAG_TO_FILTER "*992" - Default "all"
                 if action_input[0] == "*":
-                    # if len(action_input) > 1:
-                    if re.match("^(\*)(\d)+$", action_input):
+                    if re.match(r"^(\*)(.)+$", action_input):
                         tag = action_input[1:]
                         continue
                     else:
                         tag = "all"
+                        continue
+
                 # Filter by date
-                elif re.match("^(<|>)(\d){4}-(\d){2}-(\d){2}", action_input):
+                elif re.match(r"^[<>]\d{4}-\d{2}-\d{2}", action_input):
                     date_str = action_input
                     continue
 
-                action, todo_id, title, tags = extract_input(action_input)
+                action, todo_id, text, tags = extract_input(action_input)
 
                 if action == "y":  # Cancel program
                     go = False
@@ -504,15 +461,11 @@ def _main():
                     bList_actions = not bList_actions
                 elif action == "c":
                     if todo_id:  # Add comment
-                        if title:
-                            if todos_classes[todo_id].comment[0] == 0:
-                                todos_classes[todo_id].comment = [[title, today]]
+                        if text:
+                            if len(todos_classes[todo_id].comment[0]) == 0:
+                                todos_classes[todo_id].comment = [[text, today]]
                             else:
-                                todos_classes[todo_id].comment.append([title, today])
-                            # if len(todos["todos"][todo_id]["comment"][0]) == 0:
-                            #     todos["todos"][todo_id]["comment"] = [[title, today]]
-                            # else:
-                            #     todos["todos"][todo_id]["comment"].append([title, today])
+                                todos_classes[todo_id].comment.append([text, today])
                         else:
                             bShow_comments = False
                         show_this_id = todo_id
@@ -520,37 +473,30 @@ def _main():
                         bShow_comments = not bShow_comments  # Toggle show comments
                 elif action == "n":  # New entry
                     todo_id = get_id()
-                    todos_classes[todo_id] = Todo(
-                        todo_id, title, "open", [""], tags, "", today
-                    )
+                    # (todo_id, title, status, comment, tags, result, date_added)
+                    todos_classes[todo_id] = Todo(todo_id, text, "open", [""], [""], "", today)
 
-                    # todos["todos"][todo_id] = {}
-                    # todos["todos"][todo_id]["title"] = title
-                    # todos["todos"][todo_id]["status"] = "open"
-                    # todos["todos"][todo_id]["comment"] = [""]
-                    # todos["todos"][todo_id]["tags"] = tags
-                    # todos["todos"][todo_id]["date_added"] = today
-                    # todos["todos"][todo_id]["result"] = ""
                 elif action == "f":  # Set status to FINISH
                     todos_classes[todo_id].status = "finished"
-                    todos_classes[todo_id].result = [title, today]
+                    todos_classes[todo_id].result = [text, today]
                 elif action == "r":  # Set status to OPEN
                     todos_classes[todo_id].status = "open"
-                elif action == "e":  # Edit existing todo
-                    if action_input[:2].lower() == "er":
-                        if len(title.split(">")) == 2:
-                            old, new = title.split(">")
-                            new_title = todos_classes[todo_id].title.replace(old, new)
-                            print("#", new_title, "#")
-                            ok = input("Apply changes?:\t")
-                            if ok.lower() in ["y", "yes"]:
-                                todos_classes[todo_id].title = new_title
+                elif action == "e":  # Edit existing todo.title
+                        todos_classes[todo_id].title = text
+                elif action == "er":    # Replace string in todo.title
+                    if len(text.split("|")) == 2:
+                        old, new = text.split("|")
+                        new_title = todos_classes[todo_id].title.replace(old, new)
+                        print("#", new_title, "#")
+                        ok = input("Apply changes?:['y']\t")
+                        if ok.lower() in ["y", "yes"]:
+                            todos_classes[todo_id].title = new_title
                     else:
-                        todos_classes[todo_id].title = title
+                        print("old_string|new_string")
+                        sleep(3)
                 elif action == "t":  # add tags
                     if todo_id:
-                        # show_this_id = todo_id
-                        if len(todos_classes[todo_id].tags[0]) == 0:
+                        if len(todos_classes[todo_id].tags) == 0:
                             todos_classes[todo_id].tags = tags
                         else:
                             for new_tag in tags:
@@ -558,8 +504,6 @@ def _main():
                                     todos_classes[todo_id].tags.append(new_tag)
                     else:
                         bShow_tags = not bShow_tags
-                elif action == "addkey":  # Edit existing todo
-                    add_key_value_to_my_todolist_json()
 
                 dump_todo_list_to_json()
 
