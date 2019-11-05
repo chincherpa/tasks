@@ -17,4 +17,3 @@ Possible actions:
 +    "List actions": "a"
 +    "Cancel": "y"
 +    "Reset ALL": "resetall"
-+    "Add key/value to todos.json": "addkey"
