@@ -8,7 +8,8 @@ import operator
 import os
 import re
 
-from colorama import init, Fore, Back, Style
+from colorama import init, Fore  # , Back, Style
+from emoji import emojize
 
 init(autoreset=True)
 # colorama: BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE, RESET.
@@ -18,6 +19,10 @@ js_name = "todos.json"
 path_to_js = os.path.join(dir_path, js_name)
 
 length_overall = 90
+
+EMOJI_HIGH = ':collision:'
+EMOJI_LOW = ':small_blue_diamond:'
+EMOJI_PRIVAT = ':construction:'
 
 
 class Todo:
@@ -42,38 +47,32 @@ class Todo:
             )
 
     def print_tags(self):
-        print(" " * 4, end="")
+        output = " " * 4
+        dash = ""
+        if "privat" in self.tags:
+            output += dash + Fore.CYAN + emojize(EMOJI_PRIVAT)
+            dash = "  - "
         if "high" in self.tags:
-            print(Fore.WHITE + Back.RED + "HIGH", "- ", end="")
-        elif "low" in self.tags:
-            print(Fore.BLACK + Back.GREEN + "low", "- ", end="")
+            output += dash + Fore.RED + emojize(EMOJI_HIGH)
+            dash = "  - "
+        if "low" in self.tags:
+            output += dash + Fore.BLUE + emojize(EMOJI_LOW)
+            dash = "  - "
 
         for t in self.tags:
-            if t in ["high", "low"]:
+            if t in ["high", "low", "privat"]:
                 continue
-            elif t == "privat":
-                print(Fore.WHITE + Back.BLUE + t, "- ", end="")
-                # print(Fore.WHITE + Back.MAGENTA + t, "- ", end="")
-                # print(Fore.BLACK + Back.GREEN + t, "- ", end="")
-                # print(Fore.BLACK + Back.YELLOW + t, "- ", end="")
-                # print(Fore.BLACK + Back.BLUE + t, "- ", end="")
-                # print(Fore.BLACK + Back.MAGENTA + t, "- ", end="")
-                # print(Fore.BLACK + Back.CYAN + t, "- ", end="")
-                # BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE
-            else:
-                print(Fore.YELLOW + f"{t}", "- ", end="")
-        print("")
+            elif len(t) > 0:
+                output += dash + Fore.YELLOW + f"{t}"
+                dash = " - "
+
+        print(output)
 
     def print_result(self):
         if len(self.result) > 0:
             length_result = len(self.result[0])
-            length_space = length_overall - (length_result + 3 + 10)
-            print(
-                " " * 3,
-                Fore.BLUE + f"{self.result[0]}",
-                "." * length_space,
-                Fore.BLUE + f"{self.result[1]}",
-            )
+            length_space = length_overall - (length_result + 5 + 10)
+            print(" " * 3, Fore.BLUE + f"{self.result[0]}", " " * length_space, Fore.BLUE + f"{self.result[1]}")
 
 
 def dump_todo_list_to_json():
@@ -122,8 +121,9 @@ def filter_tag(id_key, tag):
     return False
 
 
-def list_todos( status: str, tag_to_show: str = "all", show_comments: bool = True,
-                show_tags: bool = True, show_date=False, id_to_show=None):
+def list_todos(status: str, tag_to_show: str = "all", show_comments: bool = True,
+               show_tags: bool = True, show_date=False, id_to_show=None):
+    has_no_comments = False
     for id_key, todo in todos_classes.items():
         title = todo.title
         length_title = len(title)
@@ -170,15 +170,14 @@ def list_todos( status: str, tag_to_show: str = "all", show_comments: bool = Tru
             if "privat" in todo.tags:
                 title = Fore.YELLOW + f"{title}"
 
-            print(
-                Fore.BLUE + f"{id_key}",
-                " " * space_after_id,
-                title,
-                " " * length_space,
-                date_added,
-                comments_plus,
-                sep="",
-            )
+            if "high" in todo.tags:
+                colorID = Fore.RED + f"{id_key}"
+            elif "low" in todo.tags:
+                colorID = Fore.BLUE + f"{id_key}"
+            else:
+                colorID = Fore.YELLOW + f"{id_key}"
+
+            print(colorID, " " * space_after_id, title, " " * length_space, date_added, comments_plus, sep="",)
 
             if show_comments and has_comments:
                 todo.print_comment()
@@ -192,6 +191,12 @@ def list_todos( status: str, tag_to_show: str = "all", show_comments: bool = Tru
             if todo.status == "finished":
                 if len(todo.result) > 0:
                     todo.print_result()
+
+            if status == "open":
+                if id_key == id_to_show and not has_comments:
+                    has_no_comments = True
+
+    return has_no_comments
 
 
 actions = {
@@ -220,13 +225,13 @@ def list_actions():
         if action == "Reset ALL":
             x -= 6
             print("|", Fore.YELLOW + f"{action}",
-                " " * x, "[", Fore.YELLOW + f"{key.upper()}",
-                "]", " |", sep="")
+                  " " * x, "[", Fore.YELLOW + f"{key.upper()}",
+                  "]", " |", sep="")
         else:
-            print( "|", Fore.YELLOW + f"{action}",
-                " " * x, "[", Fore.YELLOW + f"{key.upper()}",
-                "]", " " * (3 - len(key)),
-                "|", sep="")
+            print("|", Fore.YELLOW + f"{action}",
+                  " " * x, "[", Fore.YELLOW + f"{key.upper()}",
+                  "]", " " * (3 - len(key)),
+                  "|", sep="")
     print("-" * (length + 1), "\n")
 
 
@@ -273,6 +278,9 @@ def list_tags(status: str):
 
 
 def extract_input(inp: str):
+    # groups = re.search(r'(?P<title>.*)$\n.*Highlight on Page (?P<page>\d+).*Added on (?P<dts>.*)$\n\n(?P<text>.*)$', entry, re.MULTILINE)
+    # assert groups is not None, "Couldn't match regex!"
+
     if inp[0] == "*":
         return "*", None, None, None
     action, todo_id, text = re.match(r"([a-zA-Z]+)(\d*) ?(.*]*)", inp).groups()
@@ -291,8 +299,8 @@ def extract_input(inp: str):
     return action, todo_id, text, tags
 
 
-def print_params( bToggle_open_todos, bToggle_finished_todos, bToggle_comments,
-                  bToggle_tags, comments_id, bToggle_actions, tag, date_):
+def print_params(bToggle_open_todos, bToggle_finished_todos, bToggle_comments,
+                 bToggle_tags, comments_id, bToggle_actions, tag, date_):
     color_open_todos = Fore.GREEN + "open" if bToggle_open_todos else Fore.RED + "open"
     color_finished_todos = Fore.GREEN + "finished" if bToggle_finished_todos else Fore.RED + "finished"
     if comments_id:
@@ -301,6 +309,7 @@ def print_params( bToggle_open_todos, bToggle_finished_todos, bToggle_comments,
         color_comments = (Fore.GREEN + "comments" if bToggle_comments else Fore.RED + "comments")
     color_actions = Fore.GREEN + "actions" if bToggle_actions else Fore.RED + "actions"
     color_tags = Fore.GREEN + "Tags: " if bToggle_tags else Fore.RED + "Tags: "
+    date = Fore.YELLOW + f"{date_} " if date_ else ""
 
     print(
         color_open_todos,
@@ -308,9 +317,34 @@ def print_params( bToggle_open_todos, bToggle_finished_todos, bToggle_comments,
         color_comments,
         color_actions,
         color_tags + Fore.YELLOW + f"{tag}",
-        Fore.YELLOW + f"{date_}" if date_ else "",
+        date,
         sep=" | ",
     )
+
+
+def get_num_of_todos(status):
+    num = 0
+    for _, todo in todos_classes.items():
+        if todo.status == status:
+            num += 1
+    return num
+
+
+def print_todos(status, tag, bShow_comments, bShow_tags, date_str, show_this_id):
+    inum_todos = get_num_of_todos(status)
+    len_inum_todos = len(str(inum_todos))
+    tag_ = ""
+    if status == "open":
+        len_tag = len(tag) + 2
+        tag_ = Fore.YELLOW + f" {tag.upper() } "
+    elif status == "finished":
+        len_tag = 0
+
+    x = length_overall - len(status) - len_tag - len_inum_todos - 15
+    print("\n## ", Fore.BLUE + f"{status}", " ##", tag_, f"## {inum_todos} Todos ", "#" * x, "\n", sep="")
+    has_no_comments = list_todos(status, tag, bShow_comments, bShow_tags, date_str, show_this_id)
+    print("\n", "#" * (length_overall + 1), sep="")
+    return has_no_comments
 
 
 def _main():
@@ -337,7 +371,7 @@ def _main():
         print(
             "#" * ((length_overall // 2) - 4),
             Fore.YELLOW + " ToDoS ",
-            "#" * ((length_overall // 2) - 5),
+            "#" * ((length_overall // 2) - 4),
         )
         # print("#" * length_overall)
 
@@ -347,39 +381,18 @@ def _main():
             _ = input(">>  continue... ")
         else:
             if bList_finished_todos:
-                print("\n##", Fore.BLUE + " FINISHED ", "#" * (length_overall - 12), sep="")
-                list_todos(
-                    "finished", tag, bShow_comments, bShow_tags, date_str, show_this_id
-                )
+                abc = print_todos("finished", tag, bShow_comments, bShow_tags, date_str, show_this_id)
 
             if bList_open_todos:
-                x = length_overall - 12 - len(tag)
-                print(
-                    "\n##",
-                    Fore.GREEN + " OPEN ",
-                    "## ",
-                    Fore.YELLOW + f"{tag.upper()}",
-                    " ",
-                    "#" * x,
-                    "\n",
-                    sep="",
-                )
-                list_todos(
-                    "open", tag, bShow_comments, bShow_tags, date_str, show_this_id
-                )
-                print("\n", "#" * length_overall, sep="")
+                abc = print_todos("open", tag, bShow_comments, bShow_tags, date_str, show_this_id)
 
-            print_params(
-                bList_open_todos,
-                bList_finished_todos,
-                bShow_comments,
-                bShow_tags,
-                show_this_id,
-                bList_actions,
-                tag,
-                date_str,
-            )
+            print_params(bList_open_todos, bList_finished_todos, bShow_comments, bShow_tags,
+                         show_this_id, bList_actions, tag, date_str)
             print()
+
+            if abc:
+                print(f"Todo {show_this_id} has no comments!")
+
             show_this_id = None  # Which ID shows comments - RESET
             # Reset date to show
             date_str = False
@@ -463,7 +476,7 @@ def _main():
                 elif action == "r":  # Set status to OPEN
                     todos_classes[todo_id].status = "open"
                 elif action == "e":  # Edit existing todo.title
-                        todos_classes[todo_id].title = text
+                    todos_classes[todo_id].title = text
                 elif action == "er":    # Replace string in todo.title
                     if len(text.split("|")) == 2:
                         old, new = text.split("|")
