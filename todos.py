@@ -8,7 +8,7 @@ import operator
 import os
 import re
 
-from colorama import init, Fore  # , Back, Style
+from colorama import init, Fore
 from emoji import emojize
 
 init(autoreset=True)
@@ -85,9 +85,9 @@ def dump_todo_list_to_json():
 
 if not os.path.isfile(path_to_js):
     print("not os.path.isfile(path_to_js)")
-    open(js_name, "a").close()
     todos = {"ids": 0, "todos": {}}
-    dump_todo_list_to_json()
+    with open(path_to_js, "w") as f:
+        json.dump(todos, f, indent=4)
 else:
     with open(path_to_js, "r") as jsf:
         todos = json.load(jsf)
@@ -399,6 +399,7 @@ def _main():
 
             if bList_actions:
                 list_actions()
+                bList_actions = False
 
             action_input = input(">>  ") or 0
 
