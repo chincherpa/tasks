@@ -405,7 +405,7 @@ def _main():
         if bList_tags:
             list_tags("open")
             bList_tags = False
-            action_input = input(">>  continue... ")
+            input(">>  continue... ")
         else:
             if bList_finished_todos:
                 print(
@@ -558,8 +558,6 @@ def _main():
                                     todos_classes[todo_id].tags.append(new_tag)
                     else:
                         bShow_tags = not bShow_tags
-                elif action == "addkey":  # Edit existing todo
-                    add_key_value_to_my_todolist_json()
 
                 dump_todo_list_to_json()
 
