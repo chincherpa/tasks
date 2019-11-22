@@ -18,7 +18,7 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 js_name = "todos.json"
 path_to_js = os.path.join(dir_path, js_name)
 
-length_overall = 90
+width_overall = 90
 
 EMOJI_HIGH = ':collision:'
 EMOJI_LOW = ':small_blue_diamond:'
@@ -38,7 +38,7 @@ class Todo:
     def print_comment(self):
         for c in self.comment:
             length_comment = len(c[0])
-            length_space = length_overall - (length_comment + 17)
+            length_space = width_overall - (length_comment + 17)
             print(
                 " " * 3,
                 Fore.BLUE + f"{c[0]}",
@@ -71,7 +71,7 @@ class Todo:
     def print_result(self):
         if len(self.result) > 0:
             length_result = len(self.result[0])
-            length_space = length_overall - (length_result + 5 + 10)
+            length_space = width_overall - (length_result + 5 + 10)
             print(" " * 3, Fore.BLUE + f"{self.result[0]}", " " * length_space, Fore.BLUE + f"{self.result[1]}")
 
 
@@ -128,7 +128,7 @@ def list_todos(status: str, tag_to_show: str = "all", show_comments: bool = True
         title = todo.title
         length_title = len(title)
         date_added = todo.date_added
-        length_space = length_overall - (length_title + 13)
+        length_space = width_overall - (length_title + 13)
         space_after_id = 3 - len(id_key)
         has_comments = len(todo.comment[0]) > 0
 
@@ -202,7 +202,7 @@ def list_todos(status: str, tag_to_show: str = "all", show_comments: bool = True
 actions = {
     "Add todo 'n title'": "n",
     "Edit todo.title": "e",
-    "Edit todo.title (replace)": "er",
+    "Replace todo.title (old|new)": "er",
     "Add comment": "c",
     "Add tag": "t",
     "Finish todo": "f",
@@ -214,24 +214,20 @@ actions = {
     "Cancel": "y",
     "Reset ALL": "resetall",
     "Filter todos by date": "<2019-01-01",
+    "Set new width": "width",
 }
 
-
+# TODO rework this
 def list_actions():
     length = 37
     print("-" * (length + 1))
-    for action, key in actions.items():
-        x = length - len(action) - 6
-        if action == "Reset ALL":
-            x -= 6
-            print("|", Fore.YELLOW + f"{action}",
-                  " " * x, "[", Fore.YELLOW + f"{key.upper()}",
-                  "]", " |", sep="")
-        else:
-            print("|", Fore.YELLOW + f"{action}",
-                  " " * x, "[", Fore.YELLOW + f"{key.upper()}",
-                  "]", " " * (3 - len(key)),
-                  "|", sep="")
+    for action, command in actions.items():
+        len_action = len(action)
+        len_command = len(command)
+        x = length - len_action - len_command - 4
+        print("|", Fore.YELLOW + f"{action}",
+              " " * x, "[", Fore.YELLOW + f"{command.upper()}",
+              "]", " |", sep="")
     print("-" * (length + 1), "\n")
 
 
@@ -259,9 +255,9 @@ def list_tags(status: str):
 
     print("")
     print(
-        "#" * ((length_overall // 2) - 6),
+        "#" * ((width_overall // 2) - 6),
         Fore.YELLOW + " USED TAGS ",
-        "#" * ((length_overall // 2) - 10),
+        "#" * ((width_overall // 2) - 10),
     )
     print("")
 
@@ -340,15 +336,15 @@ def print_todos(status, tag, bShow_comments, bShow_tags, date_str, show_this_id)
     elif status == "finished":
         len_tag = 0
 
-    x = length_overall - len(status) - len_tag - len_inum_todos - 15
+    x = width_overall - len(status) - len_tag - len_inum_todos - 15
     print("\n## ", Fore.BLUE + f"{status}", " ##", tag_, f"## {inum_todos} Todos ", "#" * x, "\n", sep="")
     has_no_comments = list_todos(status, tag, bShow_comments, bShow_tags, date_str, show_this_id)
-    print("\n", "#" * (length_overall + 1), sep="")
+    print("\n", "#" * (width_overall + 1), sep="")
     return has_no_comments
 
 
 def _main():
-    global length_overall
+    global width_overall
     go = True
     bList_finished_todos = False
     bList_open_todos = True
@@ -367,13 +363,13 @@ def _main():
         # clear screen
         os.system("cls")
 
-        # print("#" * length_overall, sep='')
+        # print("#" * width_overall, sep='')
         print(
-            "#" * ((length_overall // 2) - 4),
+            "#" * ((width_overall // 2) - 4),
             Fore.YELLOW + " ToDoS ",
-            "#" * ((length_overall // 2) - 4),
+            "#" * ((width_overall // 2) - 4),
         )
-        # print("#" * length_overall)
+        # print("#" * width_overall)
 
         if bList_tags:
             list_tags("open")
@@ -410,9 +406,9 @@ def _main():
                     todos["todos"] = {}
                     dump_todo_list_to_json()
                 continue
-            elif action_input == "length":
-                length_overall = int(
-                    input(">>  New length (" + str(length_overall) + "):  ")
+            elif action_input == "width":
+                width_overall = int(
+                    input(">>  New width (" + str(width_overall) + "):  ")
                 )
                 continue
 
