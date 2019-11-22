@@ -201,16 +201,16 @@ def list_todos(status: str, tag_to_show: str = "all", show_comments: bool = True
 
 actions = {
     "Add todo 'n title'": "n",
-    "Edit todo.title": "e",
+    "Edit todo.title 'e#'": "e",
     "Replace todo.title (old|new)": "er",
-    "Add comment": "c",
-    "Add tag": "t",
-    "Finish todo": "f",
-    "Reopen todo": "r",
-    "List all todo": "l",
-    "List finished todos": "lf",
-    "List tags": "lt",
-    "List actions": "a",
+    "Add comment 'c#'": "c",
+    "Add tag 't# *tag'": "t",
+    "Finish todo 'f#'": "f",
+    "Reopen todo 'r#'": "r",
+    "Show all todos": "l",
+    "Show finished todos": "f",
+    "Show tags": "lt",
+    "Show actions": "a",
     "Cancel": "y",
     "Reset ALL": "resetall",
     "Filter todos by date": "<2019-01-01",
@@ -378,9 +378,11 @@ def _main():
         else:
             if bList_finished_todos:
                 abc = print_todos("finished", tag, bShow_comments, bShow_tags, date_str, show_this_id)
+                bList_finished_todos = False
 
             if bList_open_todos:
                 abc = print_todos("open", tag, bShow_comments, bShow_tags, date_str, show_this_id)
+            bList_open_todos = True
 
             print_params(bList_open_todos, bList_finished_todos, bShow_comments, bShow_tags,
                          show_this_id, bList_actions, tag, date_str)
@@ -414,7 +416,7 @@ def _main():
 
             if action_input:
                 # continue if missing id ("e4")
-                if action_input in ["n", "f", "o", "r", "e"]:
+                if action_input in ["o", "r", "e"]:
                     print('Missing #')
                     sleep(2)
                     continue
@@ -448,9 +450,6 @@ def _main():
                         not bList_finished_todos
                     )  # Toggle show finished todos
                     bList_open_todos = True
-                elif action_input.lower() == "lf":
-                    bList_finished_todos = True  # Show ONLY finished todos
-                    bList_open_todos = False
                 elif action_input.lower() == "lt":  # Show list of used tags
                     bList_tags = not bList_tags
                 elif action == "a":  # List all available actions
@@ -468,8 +467,12 @@ def _main():
                     else:
                         bShow_comments = not bShow_comments  # Toggle show comments
                 elif action == "f":  # Set status to FINISH
-                    todos_classes[todo_id].status = "finished"
-                    todos_classes[todo_id].result = [text, today]
+                    if todo_id:
+                        todos_classes[todo_id].status = "finished"
+                        todos_classes[todo_id].result = [text, today]
+                    else:
+                        bList_finished_todos = True  # Show ONLY finished todos
+                        bList_open_todos = False
                 elif action == "r":  # Set status to OPEN
                     todos_classes[todo_id].status = "open"
                 elif action == "e":  # Edit existing todo.title

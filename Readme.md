@@ -1,11 +1,12 @@
+# Todos in terminal
 ![alt text](screenshot0.jpg)
 
-Show comments (command: "c"):
+### Show comments (command: "c"):
 ![alt text](screenshot1.jpg)
 
-Show all todos, also finished ones (command: "l"):
+### Show all todos, also finished ones (command: "l"):
 ![alt text](screenshot2.jpg)
 
-Show possible actions (command: "a"):
+### Show possible actions (command: "a"):
 ![alt text](screenshot3.jpg)
 
