@@ -2,3 +2,5 @@
 todos_old.json
 todos.json
 .idea
+.dist
+.build
