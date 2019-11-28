@@ -400,13 +400,15 @@ def run():
         if bList_tags:
             list_tags("open")
             bList_tags = False
-            _ = input(">>  continue... ")
+            input(">>  continue... ")
         else:
             if bList_finished_todos:
                 abc = print_todos("finished", tag, bShow_comments, bShow_tags, date_str, show_this_id)
+                bList_finished_todos = False
 
             if bList_open_todos:
                 abc = print_todos("open", tag, bShow_comments, bShow_tags, date_str, show_this_id)
+            bList_open_todos = True
 
             print_params(bList_open_todos, bList_finished_todos, bShow_comments, bShow_tags,
                          show_this_id, bList_actions, tag, date_str)
@@ -440,7 +442,7 @@ def run():
 
             if action_input:
                 # continue if missing id ("e4")
-                if action_input in ["n", "f", "o", "r", "e"]:
+                if action_input in ["o", "r", "e"]:
                     print('Missing #')
                     sleep(2)
                     continue
@@ -474,9 +476,6 @@ def run():
                         not bList_finished_todos
                     )  # Toggle show finished todos
                     bList_open_todos = True
-                elif action_input.lower() == "lf":
-                    bList_finished_todos = True  # Show ONLY finished todos
-                    bList_open_todos = False
                 elif action_input.lower() == "lt":  # Show list of used tags
                     bList_tags = not bList_tags
                 elif action == "a":  # List all available actions
@@ -494,8 +493,12 @@ def run():
                     else:
                         bShow_comments = not bShow_comments  # Toggle show comments
                 elif action == "f":  # Set status to FINISH
-                    todos_classes[todo_id].status = "finished"
-                    todos_classes[todo_id].result = [text, today]
+                    if todo_id:
+                        todos_classes[todo_id].status = "finished"
+                        todos_classes[todo_id].result = [text, today]
+                    else:
+                        bList_finished_todos = True  # Show ONLY finished todos
+                        bList_open_todos = False
                 elif action == "r":  # Set status to OPEN
                     todos_classes[todo_id].status = "open"
                 elif action == "e":  # Edit existing todo.title
