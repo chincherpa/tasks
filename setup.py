@@ -13,6 +13,6 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/chincherpa/todos",
     packages=setuptools.find_packages(),
-    entry_points={"console_scripts": ["t=todo.todo:run"]},
+    entry_points={"console_scripts": ["t=todos.todos:main"]},
     python_requires='>=3.6',
 )

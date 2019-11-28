@@ -552,5 +552,9 @@ def run(todos):
                 # sleep(30)
 
 
-if __name__ == "__main__":
+def main():
     run(todos)
+
+
+if __name__ == "__main__":
+    main()

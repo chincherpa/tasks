@@ -4,3 +4,4 @@ todos.json
 .idea
 .dist
 .build
+.todos.egg-info
