@@ -1,0 +1,6 @@
+python setup.py sdist bdist_wheel
+
+erwartet einen "todo"-Ordner in C:\Python38\Lib\site-packages, der wird aber nicht erstellt??
+nachträglich kopieren
+
+C:\Python38\Scripts\t.exe

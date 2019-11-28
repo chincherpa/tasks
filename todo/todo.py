@@ -26,7 +26,7 @@ EMOJI_PRIVAT = ':construction:'
 
 
 class Todo:
-    def __init__(self, todo_id, title, status, comment, tags, result, date_added):
+    def __init__(self, todo_id, title, status, comment, tags, result, date_added, rem_time):
         self.todo_id = todo_id
         self.title = title
         self.status = status
@@ -34,6 +34,7 @@ class Todo:
         self.tags = tags
         self.result = result
         self.date_added = date_added
+        self.rem_time = rem_time
 
     def print_comment(self):
         for c in self.comment:
@@ -69,10 +70,19 @@ class Todo:
         print(output)
 
     def print_result(self):
-        if len(self.result) > 0:
-            length_result = len(self.result[0])
-            length_space = width_overall - (length_result + 5 + 10)
-            print(" " * 3, Fore.BLUE + f"{self.result[0]}", " " * length_space, Fore.BLUE + f"{self.result[1]}")
+        # if len(self.result) > 0:
+        length_result = len(self.result[0])
+        length_space = width_overall - (length_result + 5 + 10)
+        print(" " * 3, Fore.BLUE + f"{self.result[0]}", " " * length_space, Fore.BLUE + f"{self.result[1]}")
+
+    def print_rem_time(self):
+        today = datetime.date.today()
+        format = "%d-%m-%Y %H:%M:%S"
+        rem_time = datetime.datetime.strptime(self.rem_time, format)
+        if rem_time.date() <= today:
+            print(" " * 3, Fore.RED + f"-> {self.rem_time}")
+        else:
+            print(" " * 3, Fore.BLUE + f"-> {self.rem_time}")
 
 
 def dump_todo_list_to_json():
@@ -192,6 +202,9 @@ def list_todos(status: str, tag_to_show: str = "all", show_comments: bool = True
                 if len(todo.result) > 0:
                     todo.print_result()
 
+            if len(todo.rem_time) > 0:
+                todo.print_rem_time()
+
             if status == "open":
                 if id_key == id_to_show and not has_comments:
                     has_no_comments = True
@@ -200,11 +213,12 @@ def list_todos(status: str, tag_to_show: str = "all", show_comments: bool = True
 
 
 actions = {
-    "Add todo 'n title'": "n",
+    "Add todo [n title]": "n",
     "Edit todo.title": "e",
-    "Replace todo.title (old|new)": "er",
+    "Replace todo.title [old|new]": "er",
     "Add comment": "c",
     "Add tag": "t",
+    "Add reminder [rem#]": "rem",
     "Finish todo": "f",
     "Reopen todo": "r",
     "List all todo": "l",
@@ -217,7 +231,7 @@ actions = {
     "Set new width": "width",
 }
 
-# TODO rework this
+
 def list_actions():
     length = 37
     print("-" * (length + 1))
@@ -343,7 +357,19 @@ def print_todos(status, tag, bShow_comments, bShow_tags, date_str, show_this_id)
     return has_no_comments
 
 
-def _main():
+def set_reminder(todo_id, time, sunit):
+    itime = int(time)
+    if sunit == "hour":
+        rem_time = (datetime.datetime.now() + datetime.timedelta(hours=itime)).strftime('%d-%m-%Y %H:%M:%S')
+    elif sunit == "day":
+        rem_time = (datetime.datetime.now() + datetime.timedelta(days=itime)).strftime('%d-%m-%Y %H:%M:%S')
+    elif sunit == "week":
+        rem_time = (datetime.datetime.now() + datetime.timedelta(weeks=itime)).strftime('%d-%m-%Y %H:%M:%S')
+
+    todos_classes[todo_id].rem_time = rem_time
+
+
+def run():
     global width_overall
     go = True
     bList_finished_todos = False
@@ -495,9 +521,16 @@ def _main():
                                     todos_classes[todo_id].tags.append(new_tag)
                     else:
                         bShow_tags = not bShow_tags
+                elif action == "rem":  # add tags
+                    try:
+                        stime, sunit = re.match(r"(\d*) (hour|day|week)", text).groups()
+                        set_reminder(todo_id, stime, sunit)
+                    except AttributeError as e:
+                        print(f"Error: {e}")
 
                 dump_todo_list_to_json()
+                # sleep(30)
 
 
 if __name__ == "__main__":
-    _main()
+    run()
