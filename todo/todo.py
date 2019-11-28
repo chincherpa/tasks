@@ -6,6 +6,7 @@ import datetime
 import json
 import operator
 import os
+from pathlib import Path
 import re
 
 from colorama import init, Fore
@@ -85,6 +86,19 @@ class Todo:
             print(" " * 3, Fore.BLUE + f"-> {self.rem_time}")
 
 
+def load_json(path):
+    try:
+        if path[-5:] == ".json":
+            my_file = Path(path)
+            if my_file.is_file():
+                with open(path, "r") as jsf:
+                    todos = json.load(jsf)
+                return todos
+    except IndexError as e:
+        print(f"Something is wrong!\n{e}")
+        sleep(2)
+
+
 def dump_todo_list_to_json():
     todos_out = {"ids": todos["ids"], "todos": {}}
     for t_id, instance in todos_classes.items():
@@ -105,7 +119,7 @@ else:
 todos_classes = {}
 
 
-def create_instances():
+def create_instances(todos):
     for t_id, todo in todos["todos"].items():
         todos_classes[t_id] = Todo(**todo)
 
@@ -229,6 +243,7 @@ actions = {
     "Reset ALL": "resetall",
     "Filter todos by date": "<2019-01-01",
     "Set new width": "width",
+    "Load existing todos.json": "load",
 }
 
 
@@ -293,6 +308,7 @@ def extract_input(inp: str):
 
     if inp[0] == "*":
         return "*", None, None, None
+
     action, todo_id, text = re.match(r"([a-zA-Z]+)(\d*) ?(.*]*)", inp).groups()
 
     # Action
@@ -369,9 +385,8 @@ def set_reminder(todo_id, time, sunit):
     todos_classes[todo_id].rem_time = rem_time
 
 
-def run():
+def run(todos):
     global width_overall
-    go = True
     bList_finished_todos = False
     bList_open_todos = True
     bList_actions = False
@@ -382,20 +397,18 @@ def run():
     show_this_id = None
     tag = "all"
 
-    create_instances()
+    create_instances(todos)
 
-    while go:
+    while True:
         today = str(datetime.date.today())
         # clear screen
         os.system("cls")
 
-        # print("#" * width_overall, sep='')
         print(
             "#" * ((width_overall // 2) - 4),
             Fore.YELLOW + " ToDoS ",
             "#" * ((width_overall // 2) - 4),
         )
-        # print("#" * width_overall)
 
         if bList_tags:
             list_tags("open")
@@ -465,20 +478,7 @@ def run():
                 # print(action, todo_id, text, tags)
                 # sleep(5)
 
-                if action == "y":  # Cancel program
-                    go = False
-                if action == "n":  # New entry
-                    todo_id = get_id()
-                    # (todo_id, title, status, comment, tags, result, date_added)
-                    todos_classes[todo_id] = Todo(todo_id, text, "open", [""], tags, "", today)
-                elif action == "l":
-                    bList_finished_todos = (
-                        not bList_finished_todos
-                    )  # Toggle show finished todos
-                    bList_open_todos = True
-                elif action_input.lower() == "lt":  # Show list of used tags
-                    bList_tags = not bList_tags
-                elif action == "a":  # List all available actions
+                if action == "a":  # List all available actions
                     bList_actions = not bList_actions
                 elif action == "c":
                     if todo_id:  # Add comment
@@ -492,15 +492,6 @@ def run():
                         show_this_id = todo_id
                     else:
                         bShow_comments = not bShow_comments  # Toggle show comments
-                elif action == "f":  # Set status to FINISH
-                    if todo_id:
-                        todos_classes[todo_id].status = "finished"
-                        todos_classes[todo_id].result = [text, today]
-                    else:
-                        bList_finished_todos = True  # Show ONLY finished todos
-                        bList_open_todos = False
-                elif action == "r":  # Set status to OPEN
-                    todos_classes[todo_id].status = "open"
                 elif action == "e":  # Edit existing todo.title
                     todos_classes[todo_id].title = text
                 elif action == "er":    # Replace string in todo.title
@@ -514,6 +505,36 @@ def run():
                     else:
                         print("old_string|new_string")
                         sleep(3)
+                elif action == "f":  # Set status to FINISH
+                    if todo_id:
+                        todos_classes[todo_id].status = "finished"
+                        todos_classes[todo_id].result = [text, today]
+                    else:
+                        bList_finished_todos = True  # Show ONLY finished todos
+                        bList_open_todos = False
+                elif action == "l":
+                    bList_finished_todos = (
+                        not bList_finished_todos
+                    )  # Toggle show finished todos
+                    bList_open_todos = True
+                elif action == "load":  # Show list of used tags
+                    todos = load_json(text)
+                    if todos:
+                        create_instances(todos)
+                elif action == "lt":  # Show list of used tags
+                    bList_tags = not bList_tags
+                elif action == "n":  # New entry
+                    todo_id = get_id()
+                    # (todo_id, title, status, comment, tags, result, date_added)
+                    todos_classes[todo_id] = Todo(todo_id, text, "open", [""], tags, "", today)
+                elif action == "r":  # Set status to OPEN
+                    todos_classes[todo_id].status = "open"
+                elif action == "rem":  # add tags
+                    try:
+                        stime, sunit = re.match(r"(\d*) (hour|day|week)", text).groups()
+                        set_reminder(todo_id, stime, sunit)
+                    except AttributeError as e:
+                        print(f"Error: {e}")
                 elif action == "t":  # add tags
                     if todo_id:
                         if len(todos_classes[todo_id].tags) == 0:
@@ -524,16 +545,12 @@ def run():
                                     todos_classes[todo_id].tags.append(new_tag)
                     else:
                         bShow_tags = not bShow_tags
-                elif action == "rem":  # add tags
-                    try:
-                        stime, sunit = re.match(r"(\d*) (hour|day|week)", text).groups()
-                        set_reminder(todo_id, stime, sunit)
-                    except AttributeError as e:
-                        print(f"Error: {e}")
+                elif action == "y":  # Cancel program
+                    break
 
                 dump_todo_list_to_json()
                 # sleep(30)
 
 
 if __name__ == "__main__":
-    run()
+    run(todos)
