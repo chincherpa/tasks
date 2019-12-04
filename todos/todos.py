@@ -8,6 +8,7 @@ import operator
 import os
 from pathlib import Path
 import re
+import sys
 
 from colorama import init, Fore
 from emoji import emojize
@@ -78,7 +79,7 @@ class Todo:
 
     def print_rem_time(self):
         today = datetime.date.today()
-        format = "%d-%m-%Y %H:%M:%S"
+        format = "%Y-%m-%d %H:%M:%S"
         rem_time = datetime.datetime.strptime(self.rem_time, format)
         if rem_time.date() <= today:
             print(" " * 3, Fore.RED + f"-> {self.rem_time}")
@@ -89,11 +90,11 @@ class Todo:
 def load_json(path):
     try:
         if path[-5:] == ".json":
-            my_file = Path(path)
-            if my_file.is_file():
-                with open(path, "r") as jsf:
+            path_to_js = Path(path)
+            if path_to_js.is_file():
+                with open(path_to_js, "r") as jsf:
                     todos = json.load(jsf)
-                return todos
+                return path_to_js, todos
     except IndexError as e:
         print(f"Something is wrong!\n{e}")
         sleep(2)
@@ -148,10 +149,15 @@ def filter_tag(id_key, tag):
 def list_todos(status: str, tag_to_show: str = "all", show_comments: bool = True,
                show_tags: bool = True, show_date=False, id_to_show=None):
     has_no_comments = False
+    lto_remind = []
+    now = datetime.datetime.now()
+    format = "%Y-%m-%d %H:%M:%S"
+
     for id_key, todo in todos_classes.items():
         title = todo.title
         length_title = len(title)
         date_added = todo.date_added
+        rem_time = todo.rem_time
         length_space = width_overall - (length_title + 13)
         space_after_id = 3 - len(id_key)
         has_comments = len(todo.comment[0]) > 0
@@ -216,14 +222,26 @@ def list_todos(status: str, tag_to_show: str = "all", show_comments: bool = True
                 if len(todo.result) > 0:
                     todo.print_result()
 
-            if len(todo.rem_time) > 0:
+            if len(rem_time) > 0:
                 todo.print_rem_time()
+                rem_time_dt = datetime.datetime.strptime(rem_time, format)
+                res = rem_time_dt - now
+                # h = divmod(res.seconds, 3600)
+                #h[0] = Stunden
+                #h[1] = Sekunden
+                #m = divmod(h[1]), 60)
+                #m[0] = Minuten
+                #m[1] = Sekunden
+                if res.days < 1:
+                    lto_remind.append((rem_time, id_key, title))
+
 
             if status == "open":
                 if id_key == id_to_show and not has_comments:
                     has_no_comments = True
 
-    return has_no_comments
+
+    return has_no_comments, lto_remind
 
 
 actions = {
@@ -233,10 +251,12 @@ actions = {
     "Add comment": "c",
     "Add tag": "t",
     "Add reminder [rem#]": "rem",
-    "Finish todo": "f",
+    "Delete reminder [rem# del]": "",
+    "Finish todo [f#]": "f",
+    "Toggle show finished todos": "f",
+    "Toggle show open todos": "o",
     "Reopen todo": "r",
     "List all todo": "l",
-    "List finished todos": "lf",
     "List tags": "lt",
     "List actions": "a",
     "Cancel": "y",
@@ -244,6 +264,7 @@ actions = {
     "Filter todos by date": "<2019-01-01",
     "Set new width": "width",
     "Load existing todos.json": "load",
+    "Show path to .json-file": "file",
 }
 
 
@@ -368,21 +389,42 @@ def print_todos(status, tag, bShow_comments, bShow_tags, date_str, show_this_id)
 
     x = width_overall - len(status) - len_tag - len_inum_todos - 15
     print("\n## ", Fore.BLUE + f"{status}", " ##", tag_, f"## {inum_todos} Todos ", "#" * x, "\n", sep="")
-    has_no_comments = list_todos(status, tag, bShow_comments, bShow_tags, date_str, show_this_id)
+    has_no_comments, lto_remind = list_todos(status, tag, bShow_comments, bShow_tags, date_str, show_this_id)
     print("\n", "#" * (width_overall + 1), sep="")
-    return has_no_comments
+    return has_no_comments, lto_remind
 
 
-def set_reminder(todo_id, time, sunit):
-    itime = int(time)
-    if sunit == "hour":
-        rem_time = (datetime.datetime.now() + datetime.timedelta(hours=itime)).strftime('%d-%m-%Y %H:%M:%S')
-    elif sunit == "day":
-        rem_time = (datetime.datetime.now() + datetime.timedelta(days=itime)).strftime('%d-%m-%Y %H:%M:%S')
-    elif sunit == "week":
-        rem_time = (datetime.datetime.now() + datetime.timedelta(weeks=itime)).strftime('%d-%m-%Y %H:%M:%S')
+def set_reminder(todo_id, text):
+    if re.match(r"\d{4}-\d{2}-\d{2} \d+", text):
+        rem_time = datetime.datetime.strptime(text+ ':00:00', '%Y-%m-%d %H:%M:%S')
+    elif re.match(r"\d{4}-\d{2}-\d{2}", text):
+        rem_time = datetime.datetime.strptime(text + ' 12:00:00', '%Y-%m-%d %H:%M:%S')
+    elif text[0] == "t":  # tomorrow at this time
+        rem_time = (datetime.datetime.now() + datetime.timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')
+    else:
+        try:
+            stime, sunit = re.match(r"(\d*)\s*(hour|day|week|del)", text).groups()
+            if sunit == "del":
+                rem_time = ""
+            else:
+                itime = int(stime)
+                if sunit == "hour":
+                    rem_time = (datetime.datetime.now() + datetime.timedelta(hours=itime)).strftime('%Y-%m-%d %H:%M:%S')
+                elif sunit == "day":
+                    rem_time = (datetime.datetime.now() + datetime.timedelta(days=itime)).strftime('%Y-%m-%d %H:%M:%S')
+                elif sunit == "week":
+                    rem_time = (datetime.datetime.now() + datetime.timedelta(weeks=itime)).strftime('%Y-%m-%d %H:%M:%S')
+        except AttributeError as e:
+            print(f"Error: {e}")
+            sys.exit()
 
     todos_classes[todo_id].rem_time = rem_time
+
+
+def print_lto_remind(list_in):
+    print(f"{len(list_in)} upcoming todos:")
+    for r in list_in:
+        print(Fore.RED + f"{r[0]}", Fore.YELLOW + f"{r[1]}", r[2])
 
 
 def run(todos):
@@ -395,6 +437,7 @@ def run(todos):
     bList_tags = False
     date_str = False
     show_this_id = None
+    b_rem_explain = False
     tag = "all"
 
     create_instances(todos)
@@ -404,11 +447,7 @@ def run(todos):
         # clear screen
         os.system("cls")
 
-        print(
-            "#" * ((width_overall // 2) - 4),
-            Fore.YELLOW + " ToDoS ",
-            "#" * ((width_overall // 2) - 4),
-        )
+        print("#" * ((width_overall // 2) - 4), Fore.YELLOW + " ToDoS ", "#" * ((width_overall // 2) - 4),)
 
         if bList_tags:
             list_tags("open")
@@ -416,29 +455,50 @@ def run(todos):
             input(">>  continue... ")
         else:
             if bList_finished_todos:
-                abc = print_todos("finished", tag, bShow_comments, bShow_tags, date_str, show_this_id)
-                bList_finished_todos = False
+                has_no_comment, lto_remind = print_todos("finished", tag, bShow_comments, bShow_tags, date_str, show_this_id)
 
             if bList_open_todos:
-                abc = print_todos("open", tag, bShow_comments, bShow_tags, date_str, show_this_id)
-            bList_open_todos = True
+                has_no_comment, lto_remind = print_todos("open", tag, bShow_comments, bShow_tags, date_str, show_this_id)
 
             print_params(bList_open_todos, bList_finished_todos, bShow_comments, bShow_tags,
                          show_this_id, bList_actions, tag, date_str)
             print()
 
-            if abc:
+            if lto_remind:
+                print_lto_remind(lto_remind)
+            print()
+
+            if has_no_comment:
                 print(f"Todo {show_this_id} has no comments!")
 
+            if b_rem_explain:
+                # print("Set reminder:")
+                # print("Delete reminder from id: rem[id] del")
+                # print("Set reminder in x hours: rem[id] xhours")
+                # print("Set reminder in x days: rem[id] xdays")
+                # print("Set reminder in x weeks: rem[id] xweeks")
+                # print("Set reminder on date 12o'clock: rem[id] 2020-12-31")
+                # print("Set reminder on date and xo'clock: rem[id] 2020-12-31 x")
+                # print()
+                print("""Set reminder:
+    Delete reminder from id: 'rem[id] del'
+    Set reminder in x hours: 'rem[id] xhours'
+    Set reminder in x days: 'rem[id] xdays'
+    Set reminder in x weeks: 'rem[id] xweeks'
+    Set reminder on date 12o'clock: 'rem[id] 2020-12-31'
+    Set reminder on date and xo'clock: 'rem[id] 2020-12-31 x'""")
+                print()
+                b_rem_explain = False
+
             show_this_id = None  # Which ID shows comments - RESET
-            # Reset date to show
-            date_str = False
+            date_str = False  # Reset date to show
 
             if bList_actions:
                 list_actions()
                 bList_actions = False
 
             action_input = input(">>  ") or 0
+            now = str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
             if action_input == "resetall":
                 sure = input(">>  SURE? Delete ALL?\t('yes'/'y'):  ")
@@ -455,7 +515,7 @@ def run(todos):
 
             if action_input:
                 # continue if missing id ("e4")
-                if action_input in ["o", "r", "e"]:
+                if action_input in ["r", "e"]:
                     print('Missing #')
                     sleep(2)
                     continue
@@ -475,8 +535,6 @@ def run(todos):
                     continue
 
                 action, todo_id, text, tags = extract_input(action_input)
-                # print(action, todo_id, text, tags)
-                # sleep(5)
 
                 if action == "a":  # List all available actions
                     bList_actions = not bList_actions
@@ -510,15 +568,18 @@ def run(todos):
                         todos_classes[todo_id].status = "finished"
                         todos_classes[todo_id].result = [text, today]
                     else:
-                        bList_finished_todos = True  # Show ONLY finished todos
-                        bList_open_todos = False
+                        bList_finished_todos = not bList_finished_todos  # Show ONLY finished todos
+                        # bList_open_todos = not bList_open_todos
+                elif action == "file":
+                    print(path_to_js)
+                    sleep(5)
                 elif action == "l":
                     bList_finished_todos = (
                         not bList_finished_todos
                     )  # Toggle show finished todos
-                    bList_open_todos = True
+                    # bList_open_todos = True
                 elif action == "load":  # Show list of used tags
-                    todos = load_json(text)
+                    path_to_js, todos = load_json(text)
                     if todos:
                         create_instances(todos)
                 elif action == "lt":  # Show list of used tags
@@ -526,15 +587,16 @@ def run(todos):
                 elif action == "n":  # New entry
                     todo_id = get_id()
                     # (todo_id, title, status, comment, tags, result, date_added)
-                    todos_classes[todo_id] = Todo(todo_id, text, "open", [""], tags, "", today)
+                    todos_classes[todo_id] = Todo(todo_id, text, "open", [""], tags, "", today, "")
+                elif action == "o":  # Toggle show opened
+                    bList_open_todos = not bList_open_todos
                 elif action == "r":  # Set status to OPEN
                     todos_classes[todo_id].status = "open"
                 elif action == "rem":  # add tags
-                    try:
-                        stime, sunit = re.match(r"(\d*) (hour|day|week)", text).groups()
-                        set_reminder(todo_id, stime, sunit)
-                    except AttributeError as e:
-                        print(f"Error: {e}")
+                    if text:
+                        set_reminder(todo_id, text)
+                    else:
+                        b_rem_explain = True
                 elif action == "t":  # add tags
                     if todo_id:
                         if len(todos_classes[todo_id].tags) == 0:
