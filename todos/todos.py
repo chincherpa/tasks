@@ -20,6 +20,8 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 js_name = "todos.json"
 path_to_js = os.path.join(dir_path, js_name)
 
+file_ = str(path_to_js)
+
 width_overall = 90
 
 EMOJI_HIGH = ":collision:"
@@ -48,8 +50,7 @@ class Todo:
                 " " * 3,
                 Fore.BLUE + f"{c[0]}",
                 " " * length_space,
-                Fore.BLUE + f"{c[1]}",
-            )
+                Fore.BLUE + f"{c[1]}")
 
     def print_tags(self):
         output = " " * 4
@@ -103,20 +104,21 @@ def load_json(path):
                     todos = json.load(jsf)
                 return path_to_js, todos
     except IndexError as e:
-        print(f"Something is wrong!\n{e}")
+        print(Fore.RED + f"Something is wrong!\n{e}")
         sleep(2)
+    return str(path_to_js)
 
 
-def dump_todo_list_to_json():
+def dump_todo_list_to_json(target_file):
     todos_out = {"ids": todos["ids"], "todos": {}}
     for t_id, instance in todos_classes.items():
         todos_out["todos"][t_id] = instance.__dict__
-    with open(path_to_js, "w") as f:
+    with open(target_file, "w") as f:
         json.dump(todos_out, f, indent=4)
 
 
 if not os.path.isfile(path_to_js):
-    print("not os.path.isfile(path_to_js)")
+    print(Fore.RED + "keine Datenbank gefunden")
     todos = {"ids": 0, "todos": {}}
     with open(path_to_js, "w") as f:
         json.dump(todos, f, indent=4)
@@ -484,7 +486,7 @@ def print_lto_remind(list_in):
         print(Fore.RED + f"{r[0]}", Fore.YELLOW + f"{r[1]}", r[2])
 
 
-def run(todos):
+def run(todos, file_):
     global width_overall
     bList_finished_todos = False
     bList_open_todos = True
@@ -576,11 +578,17 @@ def run(todos):
             now = str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
             if action_input == "resetall":
-                sure = input(">>  SURE? Delete ALL?\t('yes'/'y'):  ")
-                if sure.lower() in ["yes", "y"]:
-                    todos["ids"] = 0
-                    todos["todos"] = {}
-                    dump_todo_list_to_json()
+                print(Fore.RED + "DOES NOT WORK!!")
+                sleep(5)
+                # sure = input(">>  SURE? Delete ALL?\t('yes'/'y'):  ")
+                # if sure.lower() in ["yes", "y"]:
+                #     todos["ids"] = 0
+                #     todos["todos"] = {}
+                #     print(todos)
+                #     sleep(5)
+                #     todos_classes = {}
+                #     create_instances(todos)
+                #     dump_todo_list_to_json(file_)
                 continue
             elif action_input == "width":
                 width_overall = int(
@@ -636,7 +644,7 @@ def run(todos):
                         if ok.lower() in ["y", "yes"]:
                             todos_classes[todo_id].title = new_title
                     else:
-                        print("old_string|new_string")
+                        print(Fore.YELLOW + "old_string|new_string")
                         sleep(3)
                 elif action == "f":  # Set status to FINISH
                     if todo_id:
@@ -648,17 +656,21 @@ def run(todos):
                         )  # Show ONLY finished todos
                         # bList_open_todos = not bList_open_todos
                 elif action == "file":
-                    print(path_to_js)
+                    print(Fore.YELLOW + f"{file_}")
                     sleep(5)
                 elif action == "l":
                     bList_finished_todos = (
                         not bList_finished_todos
                     )  # Toggle show finished todos
                     # bList_open_todos = True
-                elif action == "load":  # Show list of used tags
-                    path_to_js, todos = load_json(text)
-                    if todos:
-                        create_instances(todos)
+                elif action == "load":  # Load json file
+                    if text:
+                        file_, todos = load_json(text)
+                        if todos:
+                            create_instances(todos)
+                    else:
+                        print(Fore.YELLOW + "load c:/path/to/todos.json")
+                        sleep(4)
                 elif action == "lt":  # Show list of used tags
                     bList_tags = not bList_tags
                 elif action == "n":  # New entry
@@ -687,14 +699,14 @@ def run(todos):
                     else:
                         bShow_tags = not bShow_tags
                 elif action == "y":  # Cancel program
+                    # list_all_todos()
                     break
 
-                dump_todo_list_to_json()
-                # sleep(30)
+                dump_todo_list_to_json(file_)
 
 
 def main():
-    run(todos)
+    run(todos, file_)
 
 
 if __name__ == "__main__":
