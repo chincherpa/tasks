@@ -22,13 +22,15 @@ path_to_js = os.path.join(dir_path, js_name)
 
 width_overall = 90
 
-EMOJI_HIGH = ':collision:'
-EMOJI_LOW = ':small_blue_diamond:'
-EMOJI_PRIVAT = ':construction:'
+EMOJI_HIGH = ":collision:"
+EMOJI_LOW = ":small_blue_diamond:"
+EMOJI_PRIVAT = ":construction:"
 
 
 class Todo:
-    def __init__(self, todo_id, title, status, comment, tags, result, date_added, rem_time):
+    def __init__(
+        self, todo_id, title, status, comment, tags, result, date_added, rem_time
+    ):
         self.todo_id = todo_id
         self.title = title
         self.status = status
@@ -75,7 +77,12 @@ class Todo:
         # if len(self.result) > 0:
         length_result = len(self.result[0])
         length_space = width_overall - (length_result + 5 + 10)
-        print(" " * 3, Fore.BLUE + f"{self.result[0]}", " " * length_space, Fore.BLUE + f"{self.result[1]}")
+        print(
+            " " * 3,
+            Fore.BLUE + f"{self.result[0]}",
+            " " * length_space,
+            Fore.BLUE + f"{self.result[1]}",
+        )
 
     def print_rem_time(self):
         today = datetime.date.today()
@@ -146,8 +153,14 @@ def filter_tag(id_key, tag):
     return False
 
 
-def list_todos(status: str, tag_to_show: str = "all", show_comments: bool = True,
-               show_tags: bool = True, show_date=False, id_to_show=None):
+def list_todos(
+    status: str,
+    tag_to_show: str = "all",
+    show_comments: bool = True,
+    show_tags: bool = True,
+    show_date=False,
+    id_to_show=None,
+):
     has_no_comments = False
     lto_remind = []
     now = datetime.datetime.now()
@@ -207,7 +220,15 @@ def list_todos(status: str, tag_to_show: str = "all", show_comments: bool = True
             else:
                 colorID = Fore.YELLOW + f"{id_key}"
 
-            print(colorID, " " * space_after_id, title, " " * length_space, date_added, comments_plus, sep="",)
+            print(
+                colorID,
+                " " * space_after_id,
+                title,
+                " " * length_space,
+                date_added,
+                comments_plus,
+                sep="",
+            )
 
             if show_comments and has_comments:
                 todo.print_comment()
@@ -227,19 +248,17 @@ def list_todos(status: str, tag_to_show: str = "all", show_comments: bool = True
                 rem_time_dt = datetime.datetime.strptime(rem_time, format)
                 res = rem_time_dt - now
                 # h = divmod(res.seconds, 3600)
-                #h[0] = Stunden
-                #h[1] = Sekunden
-                #m = divmod(h[1]), 60)
-                #m[0] = Minuten
-                #m[1] = Sekunden
+                # h[0] = Stunden
+                # h[1] = Sekunden
+                # m = divmod(h[1]), 60)
+                # m[0] = Minuten
+                # m[1] = Sekunden
                 if res.days < 1:
                     lto_remind.append((rem_time, id_key, title))
-
 
             if status == "open":
                 if id_key == id_to_show and not has_comments:
                     has_no_comments = True
-
 
     return has_no_comments, lto_remind
 
@@ -275,9 +294,16 @@ def list_actions():
         len_action = len(action)
         len_command = len(command)
         x = length - len_action - len_command - 4
-        print("|", Fore.YELLOW + f"{action}",
-              " " * x, "[", Fore.YELLOW + f"{command.upper()}",
-              "]", " |", sep="")
+        print(
+            "|",
+            Fore.YELLOW + f"{action}",
+            " " * x,
+            "[",
+            Fore.YELLOW + f"{command.upper()}",
+            "]",
+            " |",
+            sep="",
+        )
     print("-" * (length + 1), "\n")
 
 
@@ -346,14 +372,26 @@ def extract_input(inp: str):
     return action, todo_id, text, tags
 
 
-def print_params(bToggle_open_todos, bToggle_finished_todos, bToggle_comments,
-                 bToggle_tags, comments_id, bToggle_actions, tag, date_):
+def print_params(
+    bToggle_open_todos,
+    bToggle_finished_todos,
+    bToggle_comments,
+    bToggle_tags,
+    comments_id,
+    bToggle_actions,
+    tag,
+    date_,
+):
     color_open_todos = Fore.GREEN + "open" if bToggle_open_todos else Fore.RED + "open"
-    color_finished_todos = Fore.GREEN + "finished" if bToggle_finished_todos else Fore.RED + "finished"
+    color_finished_todos = (
+        Fore.GREEN + "finished" if bToggle_finished_todos else Fore.RED + "finished"
+    )
     if comments_id:
         color_comments = Fore.RED + "comments " + Fore.GREEN + f"(only {comments_id})"
     else:
-        color_comments = (Fore.GREEN + "comments" if bToggle_comments else Fore.RED + "comments")
+        color_comments = (
+            Fore.GREEN + "comments" if bToggle_comments else Fore.RED + "comments"
+        )
     color_actions = Fore.GREEN + "actions" if bToggle_actions else Fore.RED + "actions"
     color_tags = Fore.GREEN + "Tags: " if bToggle_tags else Fore.RED + "Tags: "
     date = Fore.YELLOW + f"{date_} " if date_ else ""
@@ -388,19 +426,32 @@ def print_todos(status, tag, bShow_comments, bShow_tags, date_str, show_this_id)
         len_tag = 0
 
     x = width_overall - len(status) - len_tag - len_inum_todos - 15
-    print("\n## ", Fore.BLUE + f"{status}", " ##", tag_, f"## {inum_todos} Todos ", "#" * x, "\n", sep="")
-    has_no_comments, lto_remind = list_todos(status, tag, bShow_comments, bShow_tags, date_str, show_this_id)
+    print(
+        "\n## ",
+        Fore.BLUE + f"{status}",
+        " ##",
+        tag_,
+        f"## {inum_todos} Todos ",
+        "#" * x,
+        "\n",
+        sep="",
+    )
+    has_no_comments, lto_remind = list_todos(
+        status, tag, bShow_comments, bShow_tags, date_str, show_this_id
+    )
     print("\n", "#" * (width_overall + 1), sep="")
     return has_no_comments, lto_remind
 
 
 def set_reminder(todo_id, text):
     if re.match(r"\d{4}-\d{2}-\d{2} \d+", text):
-        rem_time = datetime.datetime.strptime(text+ ':00:00', '%Y-%m-%d %H:%M:%S')
+        rem_time = datetime.datetime.strptime(text + ":00:00", "%Y-%m-%d %H:%M:%S")
     elif re.match(r"\d{4}-\d{2}-\d{2}", text):
-        rem_time = datetime.datetime.strptime(text + ' 12:00:00', '%Y-%m-%d %H:%M:%S')
+        rem_time = datetime.datetime.strptime(text + " 12:00:00", "%Y-%m-%d %H:%M:%S")
     elif text[0] == "t":  # tomorrow at this time
-        rem_time = (datetime.datetime.now() + datetime.timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')
+        rem_time = (datetime.datetime.now() + datetime.timedelta(days=1)).strftime(
+            "%Y-%m-%d %H:%M:%S"
+        )
     else:
         try:
             stime, sunit = re.match(r"(\d*)\s*(hour|day|week|del)", text).groups()
@@ -409,11 +460,17 @@ def set_reminder(todo_id, text):
             else:
                 itime = int(stime)
                 if sunit == "hour":
-                    rem_time = (datetime.datetime.now() + datetime.timedelta(hours=itime)).strftime('%Y-%m-%d %H:%M:%S')
+                    rem_time = (
+                        datetime.datetime.now() + datetime.timedelta(hours=itime)
+                    ).strftime("%Y-%m-%d %H:%M:%S")
                 elif sunit == "day":
-                    rem_time = (datetime.datetime.now() + datetime.timedelta(days=itime)).strftime('%Y-%m-%d %H:%M:%S')
+                    rem_time = (
+                        datetime.datetime.now() + datetime.timedelta(days=itime)
+                    ).strftime("%Y-%m-%d %H:%M:%S")
                 elif sunit == "week":
-                    rem_time = (datetime.datetime.now() + datetime.timedelta(weeks=itime)).strftime('%Y-%m-%d %H:%M:%S')
+                    rem_time = (
+                        datetime.datetime.now() + datetime.timedelta(weeks=itime)
+                    ).strftime("%Y-%m-%d %H:%M:%S")
         except AttributeError as e:
             print(f"Error: {e}")
             sys.exit()
@@ -447,7 +504,11 @@ def run(todos):
         # clear screen
         os.system("cls")
 
-        print("#" * ((width_overall // 2) - 4), Fore.YELLOW + " ToDoS ", "#" * ((width_overall // 2) - 4),)
+        print(
+            "#" * ((width_overall // 2) - 4),
+            Fore.YELLOW + " ToDoS ",
+            "#" * ((width_overall // 2) - 4),
+        )
 
         if bList_tags:
             list_tags("open")
@@ -455,13 +516,25 @@ def run(todos):
             input(">>  continue... ")
         else:
             if bList_finished_todos:
-                has_no_comment, lto_remind = print_todos("finished", tag, bShow_comments, bShow_tags, date_str, show_this_id)
+                has_no_comment, lto_remind = print_todos(
+                    "finished", tag, bShow_comments, bShow_tags, date_str, show_this_id
+                )
 
             if bList_open_todos:
-                has_no_comment, lto_remind = print_todos("open", tag, bShow_comments, bShow_tags, date_str, show_this_id)
+                has_no_comment, lto_remind = print_todos(
+                    "open", tag, bShow_comments, bShow_tags, date_str, show_this_id
+                )
 
-            print_params(bList_open_todos, bList_finished_todos, bShow_comments, bShow_tags,
-                         show_this_id, bList_actions, tag, date_str)
+            print_params(
+                bList_open_todos,
+                bList_finished_todos,
+                bShow_comments,
+                bShow_tags,
+                show_this_id,
+                bList_actions,
+                tag,
+                date_str,
+            )
             print()
 
             if lto_remind:
@@ -480,13 +553,15 @@ def run(todos):
                 # print("Set reminder on date 12o'clock: rem[id] 2020-12-31")
                 # print("Set reminder on date and xo'clock: rem[id] 2020-12-31 x")
                 # print()
-                print("""Set reminder:
+                print(
+                    """Set reminder:
     Delete reminder from id: 'rem[id] del'
     Set reminder in x hours: 'rem[id] xhours'
     Set reminder in x days: 'rem[id] xdays'
     Set reminder in x weeks: 'rem[id] xweeks'
     Set reminder on date 12o'clock: 'rem[id] 2020-12-31'
-    Set reminder on date and xo'clock: 'rem[id] 2020-12-31 x'""")
+    Set reminder on date and xo'clock: 'rem[id] 2020-12-31 x'"""
+                )
                 print()
                 b_rem_explain = False
 
@@ -516,7 +591,7 @@ def run(todos):
             if action_input:
                 # continue if missing id ("e4")
                 if action_input in ["r", "e"]:
-                    print('Missing #')
+                    print("Missing #")
                     sleep(2)
                     continue
 
@@ -552,7 +627,7 @@ def run(todos):
                         bShow_comments = not bShow_comments  # Toggle show comments
                 elif action == "e":  # Edit existing todo.title
                     todos_classes[todo_id].title = text
-                elif action == "er":    # Replace string in todo.title
+                elif action == "er":  # Replace string in todo.title
                     if len(text.split("|")) == 2:
                         old, new = text.split("|")
                         new_title = todos_classes[todo_id].title.replace(old, new)
@@ -568,7 +643,9 @@ def run(todos):
                         todos_classes[todo_id].status = "finished"
                         todos_classes[todo_id].result = [text, today]
                     else:
-                        bList_finished_todos = not bList_finished_todos  # Show ONLY finished todos
+                        bList_finished_todos = (
+                            not bList_finished_todos
+                        )  # Show ONLY finished todos
                         # bList_open_todos = not bList_open_todos
                 elif action == "file":
                     print(path_to_js)
@@ -587,7 +664,9 @@ def run(todos):
                 elif action == "n":  # New entry
                     todo_id = get_id()
                     # (todo_id, title, status, comment, tags, result, date_added)
-                    todos_classes[todo_id] = Todo(todo_id, text, "open", [""], tags, "", today, "")
+                    todos_classes[todo_id] = Todo(
+                        todo_id, text, "open", [""], tags, "", today, ""
+                    )
                 elif action == "o":  # Toggle show opened
                     bList_open_todos = not bList_open_todos
                 elif action == "r":  # Set status to OPEN
