@@ -1,8 +1,8 @@
 .vscode/
-todos_old.json
-todos.json
 .idea/
 .dist/
 .build/
 .todos.egg-info/
 .testfolder/
+todos_old.json
+todos.json
