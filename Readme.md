@@ -1,3 +1,5 @@
+[![Run on Repl.it](https://repl.it/badge/github/chincherpa/todos)](https://repl.it/github/chincherpa/todos)
+
 # Todos in terminal
 ![alt text](screenshot0.jpg)
 
