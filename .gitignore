@@ -1,7 +1,0 @@
-.vscode/
-.idea/
-.dist/
-.build/
-.todos.egg-info/
-todos_old.json
-todos.json
