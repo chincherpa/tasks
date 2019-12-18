@@ -18,9 +18,8 @@ init(autoreset=True)
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 js_name = "todos.json"
+global path_to_js
 path_to_js = os.path.join(dir_path, js_name)
-
-file_ = str(path_to_js)
 
 width_overall = 90
 
@@ -33,6 +32,7 @@ class Todo:
     def __init__(
         self, todo_id, title, status, comment, tags, result, date_added, rem_time
     ):
+
         self.todo_id = todo_id
         self.title = title
         self.status = status
@@ -50,7 +50,8 @@ class Todo:
                 " " * 3,
                 Fore.BLUE + f"{c[0]}",
                 " " * length_space,
-                Fore.BLUE + f"{c[1]}")
+                Fore.BLUE + f"{c[1]}",
+            )
 
     def print_tags(self):
         output = " " * 4
@@ -104,21 +105,20 @@ def load_json(path):
                     todos = json.load(jsf)
                 return path_to_js, todos
     except IndexError as e:
-        print(Fore.RED + f"Something is wrong!\n{e}")
+        print(f"Something is wrong!\n{e}")
         sleep(2)
-    return str(path_to_js)
 
 
-def dump_todo_list_to_json(target_file):
-    todos_out = {"ids": todos["ids"], "todos": {}}
+def dump_todo_list_to_json():
+    todos_out = {"ids": todos["ids"], "langEN": True, "todos": {}}
     for t_id, instance in todos_classes.items():
         todos_out["todos"][t_id] = instance.__dict__
-    with open(target_file, "w") as f:
+    with open(path_to_js, "w") as f:
         json.dump(todos_out, f, indent=4)
 
 
 if not os.path.isfile(path_to_js):
-    print(Fore.RED + "keine Datenbank gefunden")
+    print("not os.path.isfile(path_to_js)")
     todos = {"ids": 0, "todos": {}}
     with open(path_to_js, "w") as f:
         json.dump(todos, f, indent=4)
@@ -163,6 +163,7 @@ def list_todos(
     show_date=False,
     id_to_show=None,
 ):
+
     has_no_comments = False
     lto_remind = []
     now = datetime.datetime.now()
@@ -268,7 +269,7 @@ def list_todos(
 actions = {
     "Add todo [n title]": "n",
     "Edit todo.title": "e",
-    "Replace todo.title [old|new]": "er",
+    "Search/replace todo.title [old|new]": "er",
     "Add comment": "c",
     "Add tag": "t",
     "Add reminder [rem#]": "rem",
@@ -286,16 +287,50 @@ actions = {
     "Set new width": "width",
     "Load existing todos.json": "load",
     "Show path to .json-file": "file",
+    "Toogle language": "lang",
+}
+
+actionsDE = {
+    # --------------------------------------
+    "Neues Todo [n title]": "n",
+    "todo.title editieren": "e",
+    "Su/Ers in todo.title [alt|neu]": "er",
+    "Kommentar hinzufügen": "c",
+    "Tag hinzufügen": "t",
+    "Erinnerung hinzufügen [rem#]": "rem",
+    "Erinnerung löschen [rem# del]": "",
+    "todo beenden [f#]": "f",
+    "Toggle zeige beendete todos": "f",
+    "Toggle zeige offene todos": "o",
+    "todo wieder öffnen": "r",
+    "Zeige alle todo": "l",
+    "Zeige tags": "lt",
+    "Zeige mögliche Befehle": "a",
+    "ALLES resetten": "resetall",
+    "Filter todos nach Datum": "<2019-01-01",
+    "Neue Breite": "width",
+    "Lade existierendes todos.json": "load",
+    "Zeige Pfad zu .json-Datei": "file",
+    "Toogle Sprache": "lang",
+    "Beenden": "y",
 }
 
 
+def toggle_language():
+    todos["langEN"] = not todos["langEN"]
+    print(f"Language set to: {'EN' if todos['langEN'] else 'DE'}")
+    sleep(0.5)
+
+
 def list_actions():
-    length = 37
+    length = 41
     print("-" * (length + 1))
-    for action, command in actions.items():
+    a = [actionsDE, actions]
+    for action, command in a[todos["langEN"]].items():
         len_action = len(action)
         len_command = len(command)
         x = length - len_action - len_command - 4
+
         print(
             "|",
             Fore.YELLOW + f"{action}",
@@ -306,6 +341,7 @@ def list_actions():
             " |",
             sep="",
         )
+
     print("-" * (length + 1), "\n")
 
 
@@ -384,17 +420,33 @@ def print_params(
     tag,
     date_,
 ):
-    color_open_todos = Fore.GREEN + "open" if bToggle_open_todos else Fore.RED + "open"
-    color_finished_todos = (
-        Fore.GREEN + "finished" if bToggle_finished_todos else Fore.RED + "finished"
+    color_open_todos = (
+        Fore.GREEN + f"{'open' if todos['langEN'] else 'offen'}"
+        if bToggle_open_todos
+        else Fore.RED + f"{'open' if todos['langEN'] else 'offen'}"
     )
+    color_finished_todos = (
+        Fore.GREEN + f"{'finished' if todos['langEN'] else 'abgeschlossene'}"
+        if bToggle_finished_todos
+        else Fore.RED + f"{'finished' if todos['langEN'] else 'abgeschlossene'}"
+    )
+
     if comments_id:
-        color_comments = Fore.RED + "comments " + Fore.GREEN + f"(only {comments_id})"
+        # color_comments = Fore.RED + "comments " + Fore.GREEN + f"(only {comments_id})"
+        color_comments = (Fore.RED + f"{'comments' if todos['langEN'] else 'Kommentare'}"
+            + Fore.GREEN
+            + f"{f'(only {comments_id})' if todos['langEN'] else f'(nur {comments_id})'})"
+        )
     else:
         color_comments = (
             Fore.GREEN + "comments" if bToggle_comments else Fore.RED + "comments"
         )
-    color_actions = Fore.GREEN + "actions" if bToggle_actions else Fore.RED + "actions"
+
+    color_actions = (
+        Fore.GREEN + f"{'actions' if todos['langEN'] else 'Befehle'}"
+        if bToggle_actions
+        else Fore.RED + f"{'actions' if todos['langEN'] else 'Befehle'}"
+    )
     color_tags = Fore.GREEN + "Tags: " if bToggle_tags else Fore.RED + "Tags: "
     date = Fore.YELLOW + f"{date_} " if date_ else ""
 
@@ -438,9 +490,11 @@ def print_todos(status, tag, bShow_comments, bShow_tags, date_str, show_this_id)
         "\n",
         sep="",
     )
+
     has_no_comments, lto_remind = list_todos(
         status, tag, bShow_comments, bShow_tags, date_str, show_this_id
     )
+
     print("\n", "#" * (width_overall + 1), sep="")
     return has_no_comments, lto_remind
 
@@ -462,17 +516,23 @@ def set_reminder(todo_id, text):
             else:
                 itime = int(stime)
                 if sunit == "hour":
+
                     rem_time = (
                         datetime.datetime.now() + datetime.timedelta(hours=itime)
                     ).strftime("%Y-%m-%d %H:%M:%S")
+
                 elif sunit == "day":
+
                     rem_time = (
                         datetime.datetime.now() + datetime.timedelta(days=itime)
                     ).strftime("%Y-%m-%d %H:%M:%S")
+
                 elif sunit == "week":
+
                     rem_time = (
                         datetime.datetime.now() + datetime.timedelta(weeks=itime)
                     ).strftime("%Y-%m-%d %H:%M:%S")
+
         except AttributeError as e:
             print(f"Error: {e}")
             sys.exit()
@@ -481,12 +541,12 @@ def set_reminder(todo_id, text):
 
 
 def print_lto_remind(list_in):
-    print(f"{len(list_in)} upcoming todos:")
+    print(f"{len(list_in)} {'upcoming' if todos['langEN'] else 'kommende'} todos:")
     for r in list_in:
         print(Fore.RED + f"{r[0]}", Fore.YELLOW + f"{r[1]}", r[2])
 
 
-def run(todos, file_):
+def run(todos):
     global width_overall
     bList_finished_todos = False
     bList_open_todos = True
@@ -555,6 +615,7 @@ def run(todos, file_):
                 # print("Set reminder on date 12o'clock: rem[id] 2020-12-31")
                 # print("Set reminder on date and xo'clock: rem[id] 2020-12-31 x")
                 # print()
+
                 print(
                     """Set reminder:
     Delete reminder from id: 'rem[id] del'
@@ -564,6 +625,7 @@ def run(todos, file_):
     Set reminder on date 12o'clock: 'rem[id] 2020-12-31'
     Set reminder on date and xo'clock: 'rem[id] 2020-12-31 x'"""
                 )
+
                 print()
                 b_rem_explain = False
 
@@ -578,17 +640,13 @@ def run(todos, file_):
             now = str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
             if action_input == "resetall":
-                print(Fore.RED + "DOES NOT WORK!!")
-                sleep(5)
-                # sure = input(">>  SURE? Delete ALL?\t('yes'/'y'):  ")
-                # if sure.lower() in ["yes", "y"]:
-                #     todos["ids"] = 0
-                #     todos["todos"] = {}
-                #     print(todos)
-                #     sleep(5)
-                #     todos_classes = {}
-                #     create_instances(todos)
-                #     dump_todo_list_to_json(file_)
+
+                sure = input(">>  SURE? Delete ALL?\t('yes'/'y'):  ")
+                if sure.lower() in ["yes", "y"]:
+                    todos["ids"] = 0
+                    todos["todos"] = {}
+
+                    dump_todo_list_to_json()
                 continue
             elif action_input == "width":
                 width_overall = int(
@@ -644,41 +702,44 @@ def run(todos, file_):
                         if ok.lower() in ["y", "yes"]:
                             todos_classes[todo_id].title = new_title
                     else:
-                        print(Fore.YELLOW + "old_string|new_string")
+                        print("old_string|new_string")
                         sleep(3)
                 elif action == "f":  # Set status to FINISH
                     if todo_id:
                         todos_classes[todo_id].status = "finished"
                         todos_classes[todo_id].result = [text, today]
                     else:
+
                         bList_finished_todos = (
                             not bList_finished_todos
                         )  # Show ONLY finished todos
+
                         # bList_open_todos = not bList_open_todos
                 elif action == "file":
-                    print(Fore.YELLOW + f"{file_}")
+                    print(path_to_js)
                     sleep(5)
                 elif action == "l":
                     bList_finished_todos = (
                         not bList_finished_todos
                     )  # Toggle show finished todos
                     # bList_open_todos = True
-                elif action == "load":  # Load json file
-                    if text:
-                        file_, todos = load_json(text)
-                        if todos:
-                            create_instances(todos)
-                    else:
-                        print(Fore.YELLOW + "load c:/path/to/todos.json")
-                        sleep(4)
+                elif action == "lang":  # Toggle language
+                    toggle_language()
+                elif action == "load":  # Show list of used tags
+                    path_to_js, todos = load_json(text)
+                    if todos:
+                        create_instances(todos)
+
                 elif action == "lt":  # Show list of used tags
                     bList_tags = not bList_tags
                 elif action == "n":  # New entry
                     todo_id = get_id()
                     # (todo_id, title, status, comment, tags, result, date_added)
+
                     todos_classes[todo_id] = Todo(
                         todo_id, text, "open", [""], tags, "", today, ""
                     )
+
                 elif action == "o":  # Toggle show opened
                     bList_open_todos = not bList_open_todos
                 elif action == "r":  # Set status to OPEN
@@ -699,14 +760,15 @@ def run(todos, file_):
                     else:
                         bShow_tags = not bShow_tags
                 elif action == "y":  # Cancel program
-                    # list_all_todos()
+
                     break
 
-                dump_todo_list_to_json(file_)
+                dump_todo_list_to_json()
+                # sleep(30)
 
 
 def main():
-    run(todos, file_)
+    run(todos)
 
 
 if __name__ == "__main__":
