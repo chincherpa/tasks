@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 from time import sleep
 
 import datetime
@@ -56,7 +55,7 @@ class Todo:
     def print_tags(self):
         output = " " * 4
         dash = ""
-        if "privat" in self.tags:
+        if "privat" in self.tags or "private" in self.tags:
             output += dash + Fore.CYAN + emojize(EMOJI_PRIVAT)
             dash = "  - "
         if "high" in self.tags:
