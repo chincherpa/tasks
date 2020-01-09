@@ -1,0 +1,26 @@
+Metadata-Version: 2.1
+Name: todos
+Version: 0.0.2
+Summary: Python CLI to manage your todos, with comments, tags and colors
+Home-page: https://github.com/chincherpa/todos
+Author: chincherpa
+Author-email: accounts@mail.de
+License: UNKNOWN
+Description: [![Run on Repl.it](https://repl.it/badge/github/chincherpa/todos)](https://repl.it/github/chincherpa/todos)
+        
+        # Todos in terminal
+        ![alt text](screenshot0.jpg)
+        
+        ### Show comments (command: "c"):
+        ![alt text](screenshot1.jpg)
+        
+        ### Show all todos, also finished ones (command: "l"):
+        ![alt text](screenshot2.jpg)
+        
+        ### Show possible actions (command: "a"):
+        ![alt text](screenshot3.jpg)
+        
+        
+Platform: UNKNOWN
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown

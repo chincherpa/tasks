@@ -35,7 +35,7 @@ class Todo:
         self, id, title, status, comments, tags, result, date_added, rem_time
     ):
 
-        self.id = id
+        self.todo_id = id
         self.title = title
         self.status = status
         self.comments = comments
@@ -121,7 +121,7 @@ def dump_todo_list_to_json():
 
 if not os.path.isfile(path_to_js):
     print("not os.path.isfile(path_to_js)")
-    todos = {"ids": 0, "langEN": True, "todos": {}}
+    todos = {"ids": 0, "todos": {}}
     with open(path_to_js, "w") as f:
         json.dump(todos, f, indent=4)
 else:
@@ -282,7 +282,7 @@ actions = {
     "Reopen todo": "r",
     "List all todo": "l",
     "List tags": "lt",
-    "Show this list": "a",
+    "List actions": "a",
     "Cancel": "y",
     "Reset ALL": "resetall",
     "Filter todos by date": "<2019-01-01",
@@ -307,7 +307,7 @@ actionsDE = {
     "todo wieder öffnen": "r",
     "Zeige alle todo": "l",
     "Zeige tags": "lt",
-    "Zeige diese Liste": "a",
+    "Zeige mögliche Befehle": "a",
     "ALLES resetten": "resetall",
     "Filter todos nach Datum": "<2019-01-01",
     "Neue Breite": "width",
@@ -338,7 +338,7 @@ def list_actions():
             Fore.YELLOW + f"{action}",
             " " * x,
             "[",
-            Fore.YELLOW + f"{command}",
+            Fore.YELLOW + f"{command.upper()}",
             "]",
             " |",
             sep="",
@@ -395,13 +395,8 @@ def extract_input(inp: str):
 
     if inp[0] == "*":
         return "*", None, None, None
-    if inp[0] == "?":
-        return "a", None, None, None
 
-    try:
-        action, todo_id, text = re.match(r"([a-zA-Z]+) ?(\d*) ?(.*]*)", inp).groups()
-    except AttributeError:
-        return None, None, None, None
+    action, todo_id, text = re.match(r"([a-zA-Z]+)(\d*) ?(.*]*)", inp).groups()
 
     # Action
     if action not in actions.values():
