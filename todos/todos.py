@@ -90,8 +90,8 @@ class Todo:
 
     def print_rem_time(self):
         today = datetime.date.today()
-        format = "%Y-%m-%d %H:%M:%S"
-        rem_time = datetime.datetime.strptime(self.rem_time, format)
+        dateformat = "%Y-%m-%d %H:%M:%S"
+        rem_time = datetime.datetime.strptime(self.rem_time, dateformat)
         if rem_time.date() <= today:
             print(" " * 3, Fore.RED + f"-> {self.rem_time}")
         else:
@@ -169,7 +169,7 @@ def list_todos(
     has_no_comments = False
     lto_remind = []
     now = datetime.datetime.now()
-    format = "%Y-%m-%d %H:%M:%S"
+    dateformat = "%Y-%m-%d %H:%M:%S"
 
     for id_key, todo in todos_classes.items():
         title = todo.title
@@ -250,7 +250,7 @@ def list_todos(
 
             if len(rem_time) > 0:
                 todo.print_rem_time()
-                rem_time_dt = datetime.datetime.strptime(rem_time, format)
+                rem_time_dt = datetime.datetime.strptime(rem_time, dateformat)
                 res = rem_time_dt - now
                 # h = divmod(res.seconds, 3600)
                 # h[0] = Stunden
